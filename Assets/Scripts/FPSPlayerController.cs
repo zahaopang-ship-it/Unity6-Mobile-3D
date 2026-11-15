@@ -59,7 +59,7 @@ public class FPSPlayerController : MonoBehaviour
         {
             Vector3 bottom=transform.position+Vector3.up*(controller.height-controller.radius);
             Vector3 top=transform.position+Vector3.up*(standingHeight-controller.radius);
-            if(Physics.CheckCapsule(bottom,top,controller.radius*.92f,Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore))target=controller.height;
+            Collider[] overlaps=Physics.OverlapCapsule(bottom,top,controller.radius*.92f,Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore);\n            foreach(Collider overlap in overlaps)if(overlap!=controller&&!overlap.isTrigger){target=controller.height;break;}
         }
         controller.height=Mathf.Lerp(controller.height,target,Time.deltaTime*stanceTransition);controller.center=Vector3.up*(controller.height*.5f);
         if(viewPivot!=null)
