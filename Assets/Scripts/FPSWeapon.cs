@@ -28,7 +28,7 @@ public class FPSWeapon : MonoBehaviour
         nextShot=Time.time+1f/Mathf.Max(.1f,current.fireRate);current.ammo--;
         if(audioSource!=null&&shotClip!=null)audioSource.PlayOneShot(shotClip);
         GameObject flash=current==pistol?pistolMuzzleFlash:akmMuzzleFlash;if(flash==null)flash=muzzleFlash;if(flash!=null){flash.SetActive(true);flashUntil=Time.time+.055f;}
-        if(cameraEffects!=null)cameraEffects.AddRecoil(current==akm?.85f:1.35f);
+        if(cameraEffects!=null)cameraEffects.AddRecoil(current==akm ? .85f : 1.35f);
         Camera cam=aimCamera!=null?aimCamera:Camera.main;if(cam==null){UpdateHud();return;}
         Ray ray=cam.ViewportPointToRay(new Vector3(.5f,.5f,0));RaycastHit[] hits=Physics.RaycastAll(ray,current.range,Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore);
         System.Array.Sort(hits,(a,b)=>a.distance.CompareTo(b.distance));
@@ -53,7 +53,13 @@ public class FPSWeapon : MonoBehaviour
         firing=false;aiming=false;if(player!=null)player.SetAim(false);UpdateHud();
     }
     public void SetAim(bool value){aiming=value;if(player!=null)player.SetAim(value);}
-    private AudioClip CreateGunshot()\n    {\n        const int rate=22050;const int count=3528;float[] samples=new float[count];System.Random random=new System.Random(17);\n        for(int i=0;i<count;i++){float t=(float)i/count;float envelope=Mathf.Exp(-t*17f);float noise=(float)(random.NextDouble()*2.0-1.0);float low=Mathf.Sin(i*2f*Mathf.PI*78f/rate);samples[i]=(noise*.68f+low*.32f)*envelope*.72f;}\n        AudioClip clip=AudioClip.Create("Procedural firearm report",count,1,rate,false);clip.SetData(samples,0);return clip;\n    }\n    private void UpdateHud()
+    private AudioClip CreateGunshot()
+    {
+        const int rate=22050;const int count=3528;float[] samples=new float[count];System.Random random=new System.Random(17);
+        for(int i=0;i<count;i++){float t=(float)i/count;float envelope=Mathf.Exp(-t*17f);float noise=(float)(random.NextDouble()*2.0-1.0);float low=Mathf.Sin(i*2f*Mathf.PI*78f/rate);samples[i]=(noise*.68f+low*.32f)*envelope*.72f;}
+        AudioClip clip=AudioClip.Create("Procedural firearm report",count,1,rate,false);clip.SetData(samples,0);return clip;
+    }
+    private void UpdateHud()
     {
         if(ammoText!=null&&current!=null)ammoText.text=current.ammo+" / "+(current==pistol?reservePistol:reserveAkm);
         if(weaponText!=null&&current!=null)weaponText.text=current.weaponName;
