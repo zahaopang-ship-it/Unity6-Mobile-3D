@@ -11,7 +11,7 @@ public class FPSMobileJoystick : MonoBehaviour, IPointerDownHandler, IPointerUpH
     public void OnPointerDown(PointerEventData e){OnDrag(e);}
     public void OnDrag(PointerEventData e)
     {
-        if(rect==null)return;Vector2 local;
+        if(rect==null)rect=transform as RectTransform;if(rect==null)return;Vector2 local;
         if(!RectTransformUtility.ScreenPointToLocalPointInRectangle(rect,e.position,e.pressEventCamera,out local))return;
         float radius=Mathf.Min(rect.rect.width,rect.rect.height)*.38f;
         Value=Vector2.ClampMagnitude(local/Mathf.Max(1f,radius),1f);
