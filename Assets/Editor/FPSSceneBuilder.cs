@@ -13,6 +13,7 @@ public static class FPSSceneBuilder
     public static void CreateScene()
     {
         DirectoryEnsure();
+        AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
         Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
         CreateMaterials();
         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
