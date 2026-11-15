@@ -12,7 +12,7 @@ public class FPSDamageable : MonoBehaviour
     private Renderer[] bodyRenderers; private Collider[] bodyColliders; private Rigidbody[] ragdollBodies;
     private Vector3[] ragdollPositions; private Quaternion[] ragdollRotations;
 
-    private void Awake()
+    private void Start()
     {
         spawnPosition=transform.position;spawnRotation=transform.rotation;Health=maxHealth;
         List<Renderer> renderers=new List<Renderer>();List<Collider> colliders=new List<Collider>();
