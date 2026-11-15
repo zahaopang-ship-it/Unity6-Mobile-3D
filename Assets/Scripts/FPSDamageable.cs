@@ -1,40 +1,56 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class FPSDamageable : MonoBehaviour
 {
-    public float health = 100f;
+    public float maxHealth=100f;
     public GameObject ragdollRoot;
-    public float respawnDelay = 4f;
-    private Vector3 spawnPosition;
-    private Quaternion spawnRotation;
-    private bool dead;
-    void Start() { spawnPosition = transform.position; spawnRotation = transform.rotation; }
-    public void ApplyDamage(float amount, Vector3 point, Vector3 force)
+    public float respawnDelay=4f;
+    public bool IsAlive { get; private set; }=true;
+    public float Health { get; private set; }
+    private Vector3 spawnPosition; private Quaternion spawnRotation;
+    private Renderer[] bodyRenderers; private Collider[] bodyColliders; private Rigidbody[] ragdollBodies;
+    private Vector3[] ragdollPositions; private Quaternion[] ragdollRotations;
+
+    private void Awake()
     {
-        if (dead) return;
-        health -= amount;
-        if (health <= 0) Die(point, force);
-    }
-    void Die(Vector3 point, Vector3 force)
-    {
-        dead = true;
-        if (ragdollRoot != null)
+        spawnPosition=transform.position;spawnRotation=transform.rotation;Health=maxHealth;
+        List<Renderer> renderers=new List<Renderer>();List<Collider> colliders=new List<Collider>();
+        foreach(Renderer r in GetComponentsInChildren<Renderer>(true))if(ragdollRoot==null||!r.transform.IsChildOf(ragdollRoot.transform))renderers.Add(r);
+        foreach(Collider c in GetComponentsInChildren<Collider>(true))if(ragdollRoot==null||!c.transform.IsChildOf(ragdollRoot.transform))colliders.Add(c);
+        bodyRenderers=renderers.ToArray();bodyColliders=colliders.ToArray();
+        if(ragdollRoot!=null)
         {
-            ragdollRoot.SetActive(true);
-            foreach (Rigidbody rb in ragdollRoot.GetComponentsInChildren<Rigidbody>())
-                rb.AddForceAtPosition(force * 260f, point, ForceMode.Impulse);
+            ragdollRoot.SetActive(false);ragdollBodies=ragdollRoot.GetComponentsInChildren<Rigidbody>(true);
+            ragdollPositions=new Vector3[ragdollBodies.Length];ragdollRotations=new Quaternion[ragdollBodies.Length];
+            for(int i=0;i<ragdollBodies.Length;i++){ragdollPositions[i]=ragdollBodies[i].transform.localPosition;ragdollRotations[i]=ragdollBodies[i].transform.localRotation;ragdollBodies[i].isKinematic=true;}
         }
-        foreach (Renderer r in GetComponentsInChildren<Renderer>()) r.enabled = false;
-        foreach (Collider c in GetComponentsInChildren<Collider>()) c.enabled = false;
-        Invoke(nameof(Respawn), respawnDelay);
     }
-    void Respawn()
+    public void ApplyDamage(float amount,Vector3 point,Vector3 force)
     {
-        if (ragdollRoot != null) ragdollRoot.SetActive(false);
-        transform.SetPositionAndRotation(spawnPosition, spawnRotation);
-        foreach (Renderer r in GetComponentsInChildren<Renderer>()) r.enabled = true;
-        foreach (Collider c in GetComponentsInChildren<Collider>()) c.enabled = true;
-        health = 100f;
-        dead = false;
+        if(!IsAlive)return;Health-=Mathf.Max(0,amount);if(Health<=0)Die(point,force);
+    }
+    private void Die(Vector3 point,Vector3 force)
+    {
+        IsAlive=false;foreach(Renderer r in bodyRenderers)if(r!=null)r.enabled=false;foreach(Collider c in bodyColliders)if(c!=null)c.enabled=false;
+        if(ragdollRoot!=null)
+        {
+            ragdollRoot.transform.SetParent(transform,false);ragdollRoot.transform.localPosition=Vector3.zero;ragdollRoot.transform.localRotation=Quaternion.identity;
+            ragdollRoot.SetActive(true);
+            foreach(Rigidbody rb in ragdollBodies)if(rb!=null){rb.isKinematic=false;rb.AddForceAtPosition(force.normalized*260f,point,ForceMode.Impulse);}
+        }
+        Invoke(nameof(Respawn),respawnDelay);
+    }
+    private void Respawn()
+    {
+        if(ragdollRoot!=null)
+        {
+            foreach(Rigidbody rb in ragdollBodies)if(rb!=null){rb.isKinematic=true;rb.velocity=Vector3.zero;rb.angularVelocity=Vector3.zero;}
+            for(int i=0;i<ragdollBodies.Length;i++)if(ragdollBodies[i]!=null){ragdollBodies[i].transform.localPosition=ragdollPositions[i];ragdollBodies[i].transform.localRotation=ragdollRotations[i];}
+            ragdollRoot.SetActive(false);
+        }
+        transform.SetPositionAndRotation(spawnPosition,spawnRotation);
+        foreach(Renderer r in bodyRenderers)if(r!=null)r.enabled=true;foreach(Collider c in bodyColliders)if(c!=null)c.enabled=true;
+        Health=maxHealth;IsAlive=true;
     }
 }
