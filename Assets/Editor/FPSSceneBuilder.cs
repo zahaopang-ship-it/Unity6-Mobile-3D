@@ -162,14 +162,14 @@ public static class FPSSceneBuilder
         Camera cam=cameraObject.AddComponent<Camera>();cam.fieldOfView=82;cam.nearClipPlane=.045f;cam.farClipPlane=180;cam.allowHDR=false;cam.allowMSAA=true;
         cameraObject.AddComponent<AudioListener>();
         GameObject weaponMount=new GameObject("First Person Weapon Mount");weaponMount.transform.SetParent(cameraObject.transform,false);weaponMount.transform.localPosition=new Vector3(.22f,-.20f,.48f);
-        FPSBodycamEffects effects=cameraObject.AddComponent<FPSBodycamEffects>();effects.weaponRoot=weaponMount.transform;
+        FPSBodycamEffects effects=cameraObject.AddComponent<FPSBodycamEffects>();effects.SetWeaponRoot(weaponMount.transform);
         BuildGun("Pistol View Model",weaponMount.transform,false);
         GameObject pistol=weaponMount.transform.Find("Pistol View Model").gameObject;
         BuildGun("AKM View Model",weaponMount.transform,true);
         GameObject akm=weaponMount.transform.Find("AKM View Model").gameObject;
         FPSWeapon weapon=root.AddComponent<FPSWeapon>();weapon.aimCamera=cam;weapon.player=player;weapon.cameraEffects=effects;weapon.pistolModel=pistol;weapon.akmModel=akm;
         weapon.audioSource=cameraObject.AddComponent<AudioSource>();weapon.audioSource.playOnAwake=false;weapon.audioSource.spatialBlend=0;
-        effects.weaponRoot=weaponMount.transform;
+        effects.SetWeaponRoot(weaponMount.transform);
         BuildArms(cameraObject.transform,weaponMount.transform);
         return player;
     }
