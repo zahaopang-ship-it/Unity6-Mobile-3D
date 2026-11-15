@@ -1,4 +1,5 @@
 using System.IO;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEditor.Build;
@@ -27,22 +28,42 @@ public static class BuildAndroid
         FPSWeapon weapon = playerObject.GetComponent<FPSWeapon>();
         GameObject enemy = GameObject.Find("Training Enemy");
         FPSDamageable damage = enemy.GetComponent<FPSDamageable>();
-        damage.SendMessage("Start");
+
+        InvokePrivate(damage, "Start");
         weapon.audioSource = null;
-        weapon.SendMessage("Start");
+        InvokePrivate(weapon, "Start");
+
         int pistolAmmoBefore = weapon.pistol.ammo;
         weapon.FireOnce();
         if (weapon.pistol.ammo != pistolAmmoBefore - 1)
             throw new System.Exception("Smoke test failed: pistol fire did not consume one round.");
+        if (damage.Health >= damage.maxHealth)
+            throw new System.Exception("Smoke test failed: pistol raycast did not damage the training enemy.");
+
         weapon.SwitchWeapon();
         if (!weapon.akmModel.activeSelf || weapon.pistolModel.activeSelf)
             throw new System.Exception("Smoke test failed: weapon switching did not activate the AKM model.");
+        SetPrivateField(weapon, "nextShot", 0f);
+        int akmAmmoBefore = weapon.akm.ammo;
+        weapon.FireOnce();
+        if (weapon.akm.ammo != akmAmmoBefore - 1)
+            throw new System.Exception("Smoke test failed: AKM firing did not consume one round.");
+
         player.SetAim(true);
         if (!player.IsAiming) throw new System.Exception("Smoke test failed: aim state did not activate.");
         player.ToggleCrouch();
+        if (!(bool)GetPrivateField(player, "crouched"))
+            throw new System.Exception("Smoke test failed: crouch toggle did not activate.");
+        player.ToggleProne();
+        if (!(bool)GetPrivateField(player, "prone") || (bool)GetPrivateField(player, "crouched"))
+            throw new System.Exception("Smoke test failed: prone stance did not replace crouch.");
         player.ToggleProne();
         player.TogglePeek(-1f);
+        if (Mathf.Abs((float)GetPrivateField(player, "peek") + 1f) > .01f)
+            throw new System.Exception("Smoke test failed: left lean state incorrect.");
         player.TogglePeek(1f);
+        if (Mathf.Abs((float)GetPrivateField(player, "peek") - 1f) > .01f)
+            throw new System.Exception("Smoke test failed: right lean state incorrect.");
         player.SetAim(false);
 
         FPSMobileJoystick stick = player.moveStick;
@@ -61,7 +82,32 @@ public static class BuildAndroid
         foreach (Rigidbody rb in damage.ragdollRoot.GetComponentsInChildren<Rigidbody>(true))
             if (rb.isKinematic) throw new System.Exception("Smoke test failed: ragdoll body remained kinematic.");
 
-        Debug.Log("FPS SMOKE TEST PASSED: pistol firing/ammo, AKM switch, aim state, virtual joystick, lethal damage and ragdoll activation.");
+        InvokePrivate(damage, "Respawn");
+        if (!damage.IsAlive || damage.ragdollRoot.activeSelf)
+            throw new System.Exception("Smoke test failed: enemy did not respawn cleanly.");
+
+        Debug.Log("FPS SMOKE TEST PASSED: pistol and AKM fire/ammo, enemy hit detection, weapon switching, aim, crouch/prone/lean, virtual joystick, ragdoll and respawn.");
+    }
+
+    private static void InvokePrivate(object target, string method)
+    {
+        MethodInfo info = target.GetType().GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic);
+        if (info == null) throw new System.Exception("Smoke test helper could not find method: " + method);
+        info.Invoke(target, null);
+    }
+
+    private static object GetPrivateField(object target, string field)
+    {
+        FieldInfo info = target.GetType().GetField(field, BindingFlags.Instance | BindingFlags.NonPublic);
+        if (info == null) throw new System.Exception("Smoke test helper could not find field: " + field);
+        return info.GetValue(target);
+    }
+
+    private static void SetPrivateField(object target, string field, object value)
+    {
+        FieldInfo info = target.GetType().GetField(field, BindingFlags.Instance | BindingFlags.NonPublic);
+        if (info == null) throw new System.Exception("Smoke test helper could not find field: " + field);
+        info.SetValue(target, value);
     }
 
     public static void PerformBuild()
