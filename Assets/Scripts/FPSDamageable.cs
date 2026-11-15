@@ -45,7 +45,7 @@ public class FPSDamageable : MonoBehaviour
     {
         if(ragdollRoot!=null)
         {
-            foreach(Rigidbody rb in ragdollBodies)if(rb!=null){rb.isKinematic=true;rb.linearVelocity=Vector3.zero;rb.angularVelocity=Vector3.zero;}
+            foreach(Rigidbody rb in ragdollBodies)if(rb!=null){if(!rb.isKinematic){rb.linearVelocity=Vector3.zero;rb.angularVelocity=Vector3.zero;}rb.isKinematic=true;}
             for(int i=0;i<ragdollBodies.Length;i++)if(ragdollBodies[i]!=null){ragdollBodies[i].transform.localPosition=ragdollPositions[i];ragdollBodies[i].transform.localRotation=ragdollRotations[i];}
             ragdollRoot.SetActive(false);
         }
