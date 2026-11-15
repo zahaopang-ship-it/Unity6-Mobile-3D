@@ -5,10 +5,16 @@ using UnityEngine;
 
 public static class BuildAndroid
 {
-    public static void PerformBuild()
+    public static void ValidateOnly()
     {
         FPSSceneBuilder.CreateScene();
         FPSSceneBuilder.ValidateScene();
+        Debug.Log("BODYCAM SCENE VALIDATION COMPLETE");
+    }
+
+    public static void PerformBuild()
+    {
+        ValidateOnly();
         PlayerSettings.productName = "Bodycam FPS Mobile";
         PlayerSettings.companyName = "Zahaopang Studio";
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.zahaopang.bodycamfps");
