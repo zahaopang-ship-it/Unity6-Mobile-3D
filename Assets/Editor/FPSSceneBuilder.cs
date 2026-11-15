@@ -168,6 +168,7 @@ public static class FPSSceneBuilder
         BuildGun("AKM View Model",weaponMount.transform,true);
         GameObject akm=weaponMount.transform.Find("AKM View Model").gameObject;
         FPSWeapon weapon=root.AddComponent<FPSWeapon>();weapon.aimCamera=cam;weapon.player=player;weapon.cameraEffects=effects;weapon.pistolModel=pistol;weapon.akmModel=akm;
+        weapon.pistolMuzzleFlash=pistol.transform.Find("Muzzle Flash").gameObject;weapon.akmMuzzleFlash=akm.transform.Find("Muzzle Flash").gameObject;
         weapon.audioSource=cameraObject.AddComponent<AudioSource>();weapon.audioSource.playOnAwake=false;weapon.audioSource.spatialBlend=0;
         effects.SetWeaponRoot(weaponMount.transform);
         BuildArms(cameraObject.transform,weaponMount.transform);
@@ -199,6 +200,11 @@ public static class FPSSceneBuilder
             Primitive(PrimitiveType.Cube,"Rear sight",root.transform,new Vector3(0,.115f,-.005f),new Vector3(.065f,.035f,.035f),metal);
             Primitive(PrimitiveType.Cube,"Front sight",root.transform,new Vector3(0,.115f,.24f),new Vector3(.025f,.035f,.025f),metal);
         }
+        GameObject flash=Primitive(PrimitiveType.Sphere,"Muzzle Flash",root.transform,
+            rifle?new Vector3(0,.015f,.88f):new Vector3(0,.06f,.40f),
+            rifle?new Vector3(.10f,.10f,.20f):new Vector3(.075f,.075f,.14f),orange);
+        Light flashLight=flash.AddComponent<Light>();flashLight.type=LightType.Point;flashLight.color=new Color(1f,.48f,.12f);flashLight.range=2.8f;flashLight.intensity=3.5f;
+        flash.SetActive(false);
     }
 
     private static void BuildArms(Transform camera,Transform mount)
