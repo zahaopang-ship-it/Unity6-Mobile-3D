@@ -39,7 +39,7 @@ public class FPSDamageable : MonoBehaviour
             ragdollRoot.SetActive(true);
             foreach(Rigidbody rb in ragdollBodies)if(rb!=null){rb.isKinematic=false;rb.AddForceAtPosition(force.normalized*260f,point,ForceMode.Impulse);}
         }
-        Invoke(nameof(Respawn),respawnDelay);
+        if(Application.isPlaying)Invoke(nameof(Respawn),respawnDelay);
     }
     private void Respawn()
     {
