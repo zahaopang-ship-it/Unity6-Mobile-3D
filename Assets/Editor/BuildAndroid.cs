@@ -2,6 +2,7 @@ using System.IO;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEditor.Build;
+using UnityEngine.EventSystems;
 using UnityEngine;
 
 public static class BuildAndroid
@@ -13,9 +14,60 @@ public static class BuildAndroid
         Debug.Log("BODYCAM SCENE VALIDATION COMPLETE");
     }
 
+    public static void SmokeTestOnly()
+    {
+        ValidateOnly();
+        RunSmokeTests();
+    }
+
+    private static void RunSmokeTests()
+    {
+        GameObject playerObject = GameObject.Find("FPS Player");
+        FPSPlayerController player = playerObject.GetComponent<FPSPlayerController>();
+        FPSWeapon weapon = playerObject.GetComponent<FPSWeapon>();
+        weapon.audioSource = null;
+        weapon.SendMessage("Start");
+        int pistolAmmoBefore = weapon.pistol.ammo;
+        weapon.FireOnce();
+        if (weapon.pistol.ammo != pistolAmmoBefore - 1)
+            throw new System.Exception("Smoke test failed: pistol fire did not consume one round.");
+        weapon.SwitchWeapon();
+        if (!weapon.akmModel.activeSelf || weapon.pistolModel.activeSelf)
+            throw new System.Exception("Smoke test failed: weapon switching did not activate the AKM model.");
+        player.SetAim(true);
+        if (!player.IsAiming) throw new System.Exception("Smoke test failed: aim state did not activate.");
+        player.ToggleCrouch();
+        player.ToggleProne();
+        player.TogglePeek(-1f);
+        player.TogglePeek(1f);
+        player.SetAim(false);
+
+        FPSMobileJoystick stick = player.moveStick;
+        EventSystem eventSystem = GameObject.Find("EventSystem").GetComponent<EventSystem>();
+        PointerEventData pointer = new PointerEventData(eventSystem);
+        RectTransform rect = stick.transform as RectTransform;
+        pointer.position = RectTransformUtility.WorldToScreenPoint(null, rect.position + Vector3.right * 50f);
+        stick.OnPointerDown(pointer);
+        if (stick.Value.sqrMagnitude < .01f)
+            throw new System.Exception("Smoke test failed: virtual joystick did not produce movement input.");
+        stick.OnPointerUp(pointer);
+
+        GameObject enemy = GameObject.Find("Training Enemy");
+        FPSDamageable damage = enemy.GetComponent<FPSDamageable>();
+        damage.SendMessage("Start");
+        damage.ApplyDamage(damage.maxHealth, enemy.transform.position + Vector3.up, Vector3.forward);
+        if (damage.IsAlive || !damage.ragdollRoot.activeSelf)
+            throw new System.Exception("Smoke test failed: lethal damage did not activate enemy ragdoll.");
+        foreach (Rigidbody rb in damage.ragdollRoot.GetComponentsInChildren<Rigidbody>(true))
+            if (rb.isKinematic) throw new System.Exception("Smoke test failed: ragdoll body remained kinematic.");
+
+        Debug.Log("FPS SMOKE TEST PASSED: pistol firing/ammo, AKM switch, aim state, virtual joystick, lethal damage and ragdoll activation.");
+    }
+
     public static void PerformBuild()
     {
         ValidateOnly();
+        RunSmokeTests();
         PlayerSettings.productName = "Bodycam FPS Mobile";
         PlayerSettings.companyName = "Zahaopang Studio";
         PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.zahaopang.bodycamfps");
