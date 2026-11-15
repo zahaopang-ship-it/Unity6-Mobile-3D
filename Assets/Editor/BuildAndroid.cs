@@ -1,6 +1,7 @@
 using System.IO;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
+using UnityEditor.Build;
 using UnityEngine;
 
 public static class BuildAndroid
@@ -17,12 +18,12 @@ public static class BuildAndroid
         ValidateOnly();
         PlayerSettings.productName = "Bodycam FPS Mobile";
         PlayerSettings.companyName = "Zahaopang Studio";
-        PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.zahaopang.bodycamfps");
+        PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.zahaopang.bodycamfps");
         PlayerSettings.bundleVersion = "0.1.0";
         PlayerSettings.Android.bundleVersionCode = 1;
         PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel23;
         PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
-        PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
+        PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
         PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
         EditorUserBuildSettings.buildAppBundle = false;
         EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
