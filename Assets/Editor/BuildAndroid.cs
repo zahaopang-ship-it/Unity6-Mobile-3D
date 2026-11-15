@@ -25,6 +25,9 @@ public static class BuildAndroid
         GameObject playerObject = GameObject.Find("FPS Player");
         FPSPlayerController player = playerObject.GetComponent<FPSPlayerController>();
         FPSWeapon weapon = playerObject.GetComponent<FPSWeapon>();
+        GameObject enemy = GameObject.Find("Training Enemy");
+        FPSDamageable damage = enemy.GetComponent<FPSDamageable>();
+        damage.SendMessage("Start");
         weapon.audioSource = null;
         weapon.SendMessage("Start");
         int pistolAmmoBefore = weapon.pistol.ammo;
@@ -52,9 +55,6 @@ public static class BuildAndroid
             throw new System.Exception("Smoke test failed: virtual joystick did not produce movement input.");
         stick.OnPointerUp(pointer);
 
-        GameObject enemy = GameObject.Find("Training Enemy");
-        FPSDamageable damage = enemy.GetComponent<FPSDamageable>();
-        damage.SendMessage("Start");
         damage.ApplyDamage(damage.maxHealth, enemy.transform.position + Vector3.up, Vector3.forward);
         if (damage.IsAlive || !damage.ragdollRoot.activeSelf)
             throw new System.Exception("Smoke test failed: lethal damage did not activate enemy ragdoll.");
