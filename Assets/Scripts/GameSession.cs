@@ -4,9 +4,15 @@ using UnityEngine.UI;
 public class GameSession : MonoBehaviour
 {
     private static int coins;
-    private static Text scoreText;
+    [SerializeField] private Text scoreText;
 
-    public static void RegisterScoreText(Text value)
+    private void Awake()
+    {
+        coins = 0;
+        UpdateScore();
+    }
+
+    public void SetScoreText(Text value)
     {
         scoreText = value;
         UpdateScore();
@@ -20,12 +26,12 @@ public class GameSession : MonoBehaviour
 
     private static void UpdateScore()
     {
-        if (scoreText != null) scoreText.text = "COINS  " + coins + " / 8";
+        if (Instance != null && Instance.scoreText != null)
+            Instance.scoreText.text = "COINS  " + coins + " / 8";
     }
 
-    public static void ResetSession()
-    {
-        coins = 0;
-        UpdateScore();
-    }
+    private static GameSession Instance;
+
+    private void OnEnable() { Instance = this; }
+    private void OnDisable() { if (Instance == this) Instance = null; }
 }
