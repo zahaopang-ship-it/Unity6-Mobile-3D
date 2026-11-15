@@ -1,22 +1,45 @@
-# Unity 6 Mobile 3D
+# Bodycam FPS Mobile (Unity 6)
 
-A small 3D mobile runner prototype built with Unity 6. The scene is generated automatically during the cloud build, so no Unity Editor is needed on your phone.
+A landscape Android first-person shooter prototype built for touch screens. The project is configured for Unity 6000.0.40f1, Android ARM64 and IL2CPP.
 
-## Gameplay
-- Drag on the left half of the screen to move.
-- Tap the upper-right half to jump.
-- Collect the eight gold coins and avoid the orange obstacles.
+## Current prototype systems
+- Mobile virtual movement joystick and right-side touch look.
+- Bodycam-style first-person camera motion, weapon sway, recoil and aim FOV.
+- Pistol and AKM, semi/automatic fire, ammo, reload and weapon switching.
+- Aim, crouch, prone, left/right lean and sprint touch controls.
+- Training enemy with health, physical ragdoll and timed respawn.
+- Procedural two-bone arm IK targets for first-person weapon holding.
+- Industrial training yard / warehouse test map.
+- Optional Kenney City Kit Industrial models (CC0); the scene builder falls back to generated geometry when the pack is absent.
 
-## Cloud APK build
-The GitHub Actions workflow builds an Android APK on every push to `main`, and can also be started manually from **Actions → Build Unity 6 Android APK → Run workflow**.
+## Touch controls
+- Left joystick: movement.
+- Drag the empty right side: look.
+- FIRE: shoot (hold for AKM automatic fire).
+- AIM: hold to aim.
+- SWAP / RELOAD: change weapon / reload.
+- CROUCH / PRONE: change stance.
+- LEAN L / LEAN R: toggle camera lean.
+- SPRINT: hold to run.
 
-### Required Unity license secrets
-Before the first build, add these repository secrets:
-- `UNITY_LICENSE`: the contents of your Unity Personal license file (.ulf).
-- `UNITY_EMAIL`: your Unity account email.
-- `UNITY_PASSWORD`: your Unity account password.
+## Free environment assets
+The scene can use Kenney City Kit (Industrial), released under CC0. The pack's License.txt is included with the downloaded files. The pack is available at:
+https://kenney.nl/assets/city-kit-industrial
 
-Never put license contents or passwords in repository files or chat messages. GameCI's official guide explains how to create the one-time manual activation file and obtain the .ulf license.
+For this build, the ZIP is also saved in Google Drive at:
+My Drive/Unity6Builds/KenneyIndustrialPack.zip
 
-## Download
-Open the successful workflow run in **Actions**, scroll to **Artifacts**, and download **Unity6-Mobile-3D-APK**. Extract the ZIP and install the APK on Android.
+Extract the Models/FBX format folder and License.txt to:
+Assets/Art/KenneyIndustrial/
+
+## Build Android APK
+1. Open the project with Unity 6000.0.40f1.
+2. Ensure Android Build Support, Android SDK & NDK Tools, and OpenJDK are installed.
+3. Activate a valid Unity Personal license on the build machine.
+4. Run the editor in batch mode:
+   bash
+   Unity -batchmode -nographics -quit -projectPath /path/to/Unity6-Mobile-3D -executeMethod BuildAndroid.PerformBuild -logFile /path/to/unity-build.log
+5. Output: build/Android/BodycamFPS-Mobile-ARM64.apk
+
+## Notes
+This is a first playable combat prototype, not a finished commercial Bodycam clone. The scene is designed for mobile performance; visual assets, full humanoid animation/IK, footstep/audio variety, enemy combat AI, and optimization will be iterated after device testing.
