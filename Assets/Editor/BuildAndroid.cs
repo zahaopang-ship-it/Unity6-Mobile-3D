@@ -4,6 +4,7 @@ using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEditor.SceneManagement;
+using UnityEditor.Android;
 using UnityEngine.UI;
 
 public static class BuildAndroid
@@ -20,7 +21,7 @@ public static class BuildAndroid
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.zahaopang.unity6mobile3d");
         PlayerSettings.bundleVersion = "1.0";
         PlayerSettings.Android.bundleVersionCode = 1;
-        PlayerSettings.Android.minSdkVersion = Android最低Sdk();
+        PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel23;
         PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
         PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
         EditorUserBuildSettings.buildAppBundle = false;
@@ -41,11 +42,6 @@ public static class BuildAndroid
             throw new System.Exception("Android build failed: " + report.summary.result +
                                        " | Errors: " + report.summary.totalErrors);
         Debug.Log("APK created: " + output);
-    }
-
-    private static AndroidSdkVersions Android最低Sdk()
-    {
-        return AndroidSdkVersions.AndroidApiLevel23;
     }
 
     private static void CreateStarterScene()
@@ -146,8 +142,8 @@ public static class BuildAndroid
         Text score = MakeText(canvasObject.transform, "SCORE",
             "COINS  0 / 8", 34, new Vector2(0.5f, 0.87f), new Vector2(0.5f, 0.87f),
             new Vector2(0, 0), new Vector2(500, 70), TextAnchor.MiddleCenter);
-        GameSession.ResetSession();
-        GameSession.RegisterScoreText(score);
+        GameSession session = canvasObject.AddComponent<GameSession>();
+        session.SetScoreText(score);
 
         Text controls = MakeText(canvasObject.transform, "CONTROLS",
             "DRAG LEFT SIDE TO MOVE     TAP RIGHT SIDE TO JUMP",
