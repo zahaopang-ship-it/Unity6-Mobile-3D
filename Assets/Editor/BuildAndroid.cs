@@ -8,6 +8,7 @@ public static class BuildAndroid
     public static void PerformBuild()
     {
         FPSSceneBuilder.CreateScene();
+        FPSSceneBuilder.ValidateScene();
         PlayerSettings.productName = "Bodycam FPS Mobile";
         PlayerSettings.companyName = "Zahaopang Studio";
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.zahaopang.bodycamfps");
