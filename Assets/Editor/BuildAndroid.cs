@@ -32,6 +32,15 @@ public static class BuildAndroid
         InvokePrivate(damage, "Start");
         weapon.audioSource = null;
         InvokePrivate(weapon, "Start");
+        if (weapon.shotClip == null) throw new System.Exception("Smoke test failed: procedural gunshot audio was not created.");
+        FPSProceduralArmIK[] armSolvers = Camera.main.GetComponents<FPSProceduralArmIK>();
+        if (armSolvers.Length < 2) throw new System.Exception("Smoke test failed: both arm IK solvers are required.");
+        foreach (FPSProceduralArmIK solver in armSolvers)
+        {
+            InvokePrivate(solver, "LateUpdate");
+            if (Vector3.Distance(solver.hand.position, solver.gripTarget.position) > .02f)
+                throw new System.Exception("Smoke test failed: weapon hand IK did not reach its grip target.");
+        }
 
         int pistolAmmoBefore = weapon.pistol.ammo;
         weapon.FireOnce();
