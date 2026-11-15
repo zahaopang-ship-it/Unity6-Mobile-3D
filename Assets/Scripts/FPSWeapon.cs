@@ -5,72 +5,57 @@ public class FPSWeapon : MonoBehaviour
 {
     [System.Serializable] public class WeaponData
     {
-        public string weaponName;
-        public int damage;
-        public float fireRate;
-        public int magazineSize;
-        public float range;
-        public bool automatic;
+        public string weaponName; public int damage; public float fireRate; public int magazineSize; public float range; public bool automatic;
         [HideInInspector] public int ammo;
     }
-    public WeaponData pistol = new WeaponData { weaponName="Pistol", damage=34, fireRate=3.2f, magazineSize=15, range=80, automatic=false };
-    public WeaponData akm = new WeaponData { weaponName="AKM", damage=25, fireRate=9f, magazineSize=30, range=130, automatic=true };
-    public Camera aimCamera;
-    public Text ammoText;
-    public Text weaponText;
-    public GameObject pistolModel, akmModel, muzzleFlash;
-    public AudioSource audioSource;
-    public AudioClip shotClip;
-    private WeaponData current;
-    private float nextShot;
-    private bool firing;
-    private bool aiming;
-    private int reservePistol = 60, reserveAkm = 120;
-
-    void Start() { pistol.ammo = pistol.magazineSize; akm.ammo = akm.magazineSize; Equip(0); }
-    void Update()
+    public WeaponData pistol=new WeaponData{weaponName="Pistol",damage=34,fireRate=3.2f,magazineSize=15,range=80,automatic=false};
+    public WeaponData akm=new WeaponData{weaponName="AKM",damage=25,fireRate=9f,magazineSize=30,range=130,automatic=true};
+    public Camera aimCamera; public FPSPlayerController player; public FPSBodycamEffects cameraEffects;
+    public Text ammoText; public Text weaponText; public GameObject pistolModel,akmModel,muzzleFlash; public AudioSource audioSource; public AudioClip shotClip;
+    private WeaponData current; private float nextShot,flashUntil; private bool firing,aiming; private int reservePistol=60,reserveAkm=120;
+    private void Start(){pistol.ammo=pistol.magazineSize;akm.ammo=akm.magazineSize;Equip(0);UpdateHud();}
+    private void Update()
     {
-        if (Input.GetMouseButton(0)) Fire();
-        if (firing) Fire();
-        UpdateHud();
-        if (muzzleFlash != null && muzzleFlash.activeSelf) muzzleFlash.SetActive(false);
+        if(Input.GetMouseButtonDown(0))FireOnce();
+        if(Input.GetMouseButton(0)&&current!=null&&current.automatic)FireOnce();
+        if(firing&&current!=null&&current.automatic)FireOnce();
+        if(muzzleFlash!=null&&Time.time>flashUntil&&muzzleFlash.activeSelf)muzzleFlash.SetActive(false);
     }
-    public void SetFire(bool value) { firing = value; if (value && !current.automatic) Fire(); }
-    public void Fire()
+    public void SetFire(bool value){bool pressed=value&&!firing;firing=value;if(pressed&&current!=null&&!current.automatic)FireOnce();}
+    public void FireOnce()
     {
-        if (current == null || Time.time < nextShot || current.ammo <= 0) return;
-        nextShot = Time.time + 1f / current.fireRate;
-        current.ammo--;
-        if (audioSource != null && shotClip != null) audioSource.PlayOneShot(shotClip);
-        if (muzzleFlash != null) muzzleFlash.SetActive(true);
-        Ray ray = aimCamera != null ? aimCamera.ViewportPointToRay(new Vector3(.5f,.5f,0)) : new Ray(transform.position, transform.forward);
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, current.range))
+        if(current==null||Time.time<nextShot||current.ammo<=0)return;
+        nextShot=Time.time+1f/Mathf.Max(.1f,current.fireRate);current.ammo--;
+        if(audioSource!=null&&shotClip!=null)audioSource.PlayOneShot(shotClip);
+        if(muzzleFlash!=null){muzzleFlash.SetActive(true);flashUntil=Time.time+.055f;}
+        if(cameraEffects!=null)cameraEffects.AddRecoil(current==akm?.85f:1.35f);
+        Camera cam=aimCamera!=null?aimCamera:Camera.main;if(cam==null){UpdateHud();return;}
+        Ray ray=cam.ViewportPointToRay(new Vector3(.5f,.5f,0));RaycastHit[] hits=Physics.RaycastAll(ray,current.range,Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore);
+        System.Array.Sort(hits,(a,b)=>a.distance.CompareTo(b.distance));
+        foreach(RaycastHit hit in hits)
         {
-            FPSDamageable target = hit.collider.GetComponentInParent<FPSDamageable>();
-            if (target != null) target.ApplyDamage(current.damage, hit.point, ray.direction);
+            if(hit.collider.transform.IsChildOf(transform))continue;
+            FPSDamageable target=hit.collider.GetComponentInParent<FPSDamageable>();
+            if(target!=null){target.ApplyDamage(current.damage,hit.point,ray.direction);break;}
+            if(!hit.collider.isTrigger)break;
         }
+        UpdateHud();
     }
     public void Reload()
     {
-        int reserve = current == pistol ? reservePistol : reserveAkm;
-        int need = current.magazineSize - current.ammo;
-        int take = Mathf.Min(need, reserve);
-        current.ammo += take;
-        if (current == pistol) reservePistol -= take; else reserveAkm -= take;
+        if(current==null)return;int reserve=current==pistol?reservePistol:reserveAkm;int amount=Mathf.Min(current.magazineSize-current.ammo,reserve);
+        current.ammo+=amount;if(current==pistol)reservePistol-=amount;else reserveAkm-=amount;UpdateHud();
     }
-    public void SwitchWeapon() { Equip(current == pistol ? 1 : 0); }
+    public void SwitchWeapon(){Equip(current==pistol?1:0);}
     public void Equip(int index)
     {
-        current = index == 0 ? pistol : akm;
-        if (pistolModel != null) pistolModel.SetActive(index == 0);
-        if (akmModel != null) akmModel.SetActive(index == 1);
-        UpdateHud();
+        current=index==0?pistol:akm;if(pistolModel!=null)pistolModel.SetActive(index==0);if(akmModel!=null)akmModel.SetActive(index==1);
+        firing=false;aiming=false;if(player!=null)player.SetAim(false);UpdateHud();
     }
-    public void SetAim(bool value) { aiming = value; }
-    void UpdateHud()
+    public void SetAim(bool value){aiming=value;if(player!=null)player.SetAim(value);}
+    private void UpdateHud()
     {
-        if (ammoText != null && current != null) ammoText.text = current.ammo + " / " + (current == pistol ? reservePistol : reserveAkm);
-        if (weaponText != null && current != null) weaponText.text = current.weaponName;
+        if(ammoText!=null&&current!=null)ammoText.text=current.ammo+" / "+(current==pistol?reservePistol:reserveAkm);
+        if(weaponText!=null&&current!=null)weaponText.text=current.weaponName;
     }
 }
