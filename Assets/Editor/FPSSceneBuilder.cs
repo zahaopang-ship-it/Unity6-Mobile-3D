@@ -300,6 +300,28 @@ public static class FPSSceneBuilder
         GameObject warm=new GameObject("Loading bay sodium light");warm.transform.position=new Vector3(0,5,-3);Light w=warm.AddComponent<Light>();w.type=LightType.Point;w.range=20;w.intensity=1.6f;w.color=new Color(1f,.68f,.38f);
     }
 
+
+    public static void ValidateScene()
+    {
+        GameObject playerObject=GameObject.Find("FPS Player");
+        if(playerObject==null)throw new System.Exception("Validation failed: FPS Player missing.");
+        FPSPlayerController player=playerObject.GetComponent<FPSPlayerController>();
+        FPSWeapon weapon=playerObject.GetComponent<FPSWeapon>();
+        if(player==null||weapon==null)throw new System.Exception("Validation failed: player controller or weapon component missing.");
+        if(player.viewPivot==null||player.moveStick==null)throw new System.Exception("Validation failed: view pivot or mobile joystick is not assigned.");
+        if(weapon.aimCamera==null||weapon.player==null||weapon.pistolModel==null||weapon.akmModel==null)throw new System.Exception("Validation failed: weapon references are incomplete.");
+        if(weapon.pistolMuzzleFlash==null||weapon.akmMuzzleFlash==null||weapon.ammoText==null||weapon.weaponText==null)throw new System.Exception("Validation failed: muzzle flash or weapon HUD reference missing.");
+        if(Camera.main==null||Camera.main.GetComponent<FPSBodycamEffects>()==null)throw new System.Exception("Validation failed: Bodycam camera/effects missing.");
+        if(playerObject.GetComponentsInChildren<FPSProceduralArmIK>(true).Length<2)throw new System.Exception("Validation failed: both arm IK solvers are required.");
+        GameObject enemy=GameObject.Find("Training Enemy");
+        if(enemy==null)throw new System.Exception("Validation failed: training enemy missing.");
+        FPSDamageable damage=enemy.GetComponent<FPSDamageable>();
+        if(damage==null||damage.ragdollRoot==null||damage.ragdollRoot.GetComponentsInChildren<Rigidbody>(true).Length<5)throw new System.Exception("Validation failed: enemy ragdoll setup incomplete.");
+        if(GameObject.Find("EventSystem")==null||GameObject.Find("FIRE Button")==null||GameObject.Find("AIM Button")==null||GameObject.Find("RELOAD Button")==null||GameObject.Find("SWAP Button")==null)
+            throw new System.Exception("Validation failed: required mobile touch UI or EventSystem missing.");
+        Debug.Log("FPS SCENE VALIDATION PASSED: player, mobile controls, camera, weapons, IK, enemy and ragdoll references are present.");
+    }
+
     private static void BuildHUD(FPSPlayerController player)
     {
         GameObject canvasObject=new GameObject("Mobile FPS HUD");Canvas canvas=canvasObject.AddComponent<Canvas>();canvas.renderMode=RenderMode.ScreenSpaceOverlay;
