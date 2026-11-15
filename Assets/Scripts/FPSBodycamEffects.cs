@@ -6,6 +6,7 @@ public class FPSBodycamEffects : MonoBehaviour
     public Transform weaponRoot; public float baseFov=82f,aimFov=58f,walkBob=.012f,sway=.9f,noiseAmount=.0015f;
     private Camera cam;private Vector3 initialLocal,weaponInitialLocal;private Quaternion initialRotation;private float bob,recoil,noiseSeed;private FPSPlayerController player;
     private void Awake(){cam=GetComponent<Camera>();initialLocal=transform.localPosition;initialRotation=transform.localRotation;player=GetComponentInParent<FPSPlayerController>();cam.fieldOfView=baseFov;noiseSeed=Random.value*100f;if(weaponRoot!=null)weaponInitialLocal=weaponRoot.localPosition;}
+    public void SetWeaponRoot(Transform value){weaponRoot=value;weaponInitialLocal=value!=null?value.localPosition:Vector3.zero;}
     private void LateUpdate()
     {
         float movement=player!=null?player.MovementAmount:0f;float speed=player!=null&&player.IsMoving?1f:0f;
