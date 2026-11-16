@@ -1,43 +1,51 @@
-# Bodycam FPS — current recovery and asset inspection checkpoint
+# Bodycam FPS — Unity 6.3 recovery and Android ARM64 build checkpoint
 
 Date: 2026-11-16
-Unity project target: 6000.3.28f1, Android ARM64, Realme 8 / Helio G95
+Project: Unity 6000.3.28f1
+Target: Android ARM64, Landscape, OpenGLES3, Realme 8 / Helio G95
 Recovery branch: `bodycam-rebuild-2026-11-16`
+Working project: `/content/work/Unity6-Mobile-3D-Unity63`
 
-## Recovery and host status
-- Restored project source from Google Drive `BodycamProjectSource_2026-11-16_Unity63Checkpoint5.zip` into the current remote workspace.
-- The original full source ZIP remains untouched.
-- Current remote host is `1ed5cf7f39cf`; Blender 4.0.2 is installed and working.
-- DNS and HTTPS to Unity, GitHub and Drive work.
-- Unity Editor and Unity CLI are not installed on this new host. Therefore Unity authentication/license, Unity compilation, Unity import, and APK build are not currently verified on this host.
+## Environment and licensing
+- Unity 6000.3.28f1 Editor, Android Build Support, SDK, NDK 27.2 and OpenJDK 17 are installed on remote host `1ed5cf7f39cf`.
+- Unity account sign-in is successful and Unity Personal is assigned.
+- Unity batchmode compilation has succeeded; C# compilation and editor scene generation are verified.
 
-## Assets inspected and prepared
-- **FPS AK-74m animations — Cransh, CC BY 4.0**: 3 meshes, 84-bone armature, 18 actions, 40,024 triangles.
-- **FPS pistol animations — Cransh, CC BY 4.0**: 4 meshes, 80-bone armature, 10 actions, 32,670 triangles.
-- **FSB Operator — SpatialNeglect, CC BY 4.0**: 40 meshes, 65-bone armature, one 232-frame action, 114,273 triangles. 17 texture references were relinked to supplied archive maps before FBX export. Some old/unused weapon and patch maps referenced by the source blend are not included in the supplied archive and need Unity visual review.
-- **Abandoned Warehouse — Arsen Ismailov, CC BY 4.0**: GLB metadata verified the title, author, Sketchfab source URL and license. 41 meshes; 197,970 triangles before selective decimation, 164,434 after a 0.65 ratio on two window meshes and the concrete stairs.
-- The user explicitly rejected Abandoned Factory Hall Scan. It is not used.
+## Imported assets integrated in the scene
+- FPS AK-74M arms/viewmodel: Cransh, CC BY 4.0. Source archive repaired using byte-identical `armColor.png` and `armNormal.png` from the Cransh FPS pistol archive; CRC and ZIP integrity passed.
+- FPS pistol arms/viewmodel: Cransh, CC BY 4.0.
+- FSB Operator full-body enemy: SpatialNeglect / Mateusz Woliński, CC BY 4.0. The imported skinned meshes and Animator are integrated as the training enemy.
+- Abandoned Warehouse: Arsen Ismailov / fdgasd7, CC BY 4.0. Integrated as the scene environment with 41 MeshColliders.
+- Rejected Abandoned Factory Hall Scan is not used.
+- No Kenney assets are used.
 
-## Verified preparation
-- Repaired AK-74M archive by substituting byte-identical `armColor.png` and `armNormal.png` from the Cransh pistol archive. Both matched 4096x4096 dimensions, byte sizes and CRC32. Repaired ZIP passed integrity test.
-- Exported FBX models for AK-74M, pistol, FSB Operator and Abandoned Warehouse.
-- Re-imported all four FBX files into Blender and verified mesh/armature/action counts. This confirms FBX structural round-trip only; it is not a Unity import or in-game test.
-- Copied models and source texture files into the Unity project under `Assets/Art/ThirdParty/Sketchfab/` and `Assets/Art/Environment/Abandoned_Warehouse/`.
-- Updated final asset validation to look for `Abandoned_Warehouse`, not the rejected FactoryHall folder.
-- Added/updated third-party attribution in `Assets/Art/THIRD_PARTY_ASSETS.md`.
+## Scene and gameplay verification
+- FPSSceneBuilder creates the Bodycam camera and FPSBodycamEffects, with walk/sprint bob, breathing micro-motion, inertial sway/roll, landing impulse, recoil and FOV transitions.
+- Imported pistol and AK-74M viewmodels are connected to FPSWeapon. Imported Animator controllers are configured with fire/reload/draw triggers and walk speed parameter.
+- Mobile joystick and FIRE/AIM/RELOAD/SWAP/CROUCH/PRONE/LEAN/SPRINT controls are present.
+- Imported warehouse meshes are assigned MeshColliders; scene validation passes.
+- Automated Unity smoke test passed: pistol/AK ammo consumption, raycast damage, weapon switching, aim, crouch/prone/lean, virtual joystick, enemy death/ragdoll activation and respawn.
 
-## Remaining blockers — do not ship
-- Need Unity 6000.3.28f1, Android modules and valid Unity Personal sign-in on an available host. The previous Unity-enabled host is currently offline.
-- Unity import/material appearance and FBX importer warnings must be checked in the Editor.
-- `FPSSceneBuilder.cs` still creates primitive placeholders for weapons, arms, enemy and environment. Replace and calibrate these in Unity before final validation.
-- FSB Operator has some unresolved legacy material references absent from its supplied archive; inspect/replace or hide affected submeshes.
-- AKM Asset Store weapon orientation and attachment to the final arms rig remain uncalibrated.
-- No new APK has been built or verified. Existing APKs in Drive are old.
+## Known limitations — not a final release yet
+- The enemy's visible character is the imported FSB Operator, but its death ragdoll currently uses separate capsule physics proxies; a bone-mapped ragdoll matching the visible character is still required.
+- Imported weapon and enemy materials, model orientation, hand alignment and camera framing still need visual review in the Unity Game view and on a physical phone. Batchmode smoke tests cannot prove visual quality.
+- The FSB archive omits some legacy weapon/patch texture references; affected materials still need visual review.
+- No APK has yet passed final packaging and artifact verification. Do not deliver older APKs from Drive as the current build.
+
+## Android ARM64 build
+- Build settings: ARM64, IL2CPP, Android API 35 target, API 25 minimum, LandscapeLeft, OpenGLES3.
+- The Android ARM64 IL2CPP build is currently running on the remote host. Unity has passed scene validation and smoke tests and is compiling native Android code. APK packaging and artifact checks are pending.
+- Mono is not selected for the ARM64 target.
+
+## Backup
+- Google Drive checkpoint: `BodycamProjectSource_2026-11-16_Unity63Checkpoint9.zip`
+- Size: 379 MB
+- ZIP integrity: passed
+- SHA-256: `50b764148197dbacf52074bde86f59bc7ca94f3199c8436425f9a7dc90fcac08`
 
 ## Next steps
-1. Restore Unity 6000.3.28f1 and Android modules, then verify Unity Personal licensing.
-2. Import assets in Unity and resolve materials/rig settings.
-3. Create calibrated AK-74M and pistol viewmodel prefabs and animation controllers while preserving touch-fire/reload/weapon-switch logic.
-4. Replace enemy visuals and implement a proper animated/ragdoll setup.
-5. Replace placeholder environment with Abandoned Warehouse; add colliders, lighting, occlusion and mobile LOD/texture settings.
-6. Remove primitive placeholders, run Unity validation/smoke tests, then build and verify a fresh Android ARM64 APK.
+1. Complete the Android ARM64 IL2CPP build.
+2. Verify APK with ZIP integrity, apksigner, aapt badging, ABI inspection and BuildReport.
+3. Complete visual inspection of weapon/arms/enemy materials and model alignment.
+4. Replace capsule proxy ragdoll with a bone-mapped FSB Operator ragdoll.
+5. Test on the Realme 8 or a suitable Android ARM64 device before calling the build release-ready.
