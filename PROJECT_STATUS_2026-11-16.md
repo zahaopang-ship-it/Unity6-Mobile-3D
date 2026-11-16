@@ -20,7 +20,7 @@ Target: Android ARM64, Landscape, Realme 8 / Helio G95
 ## Still incomplete — do not ship as final
 - The scene builder still contains primitive placeholder geometry for some weapons, arms, enemy, and environment. The final scene must replace these with real approved Asset Store/Sketchfab assets.
 - The currently present Cransh Arm3 first-person pack has a known rifle mesh issue; it is not approved for the final viewmodel.
-- Incoming Sketchfab assets required: FPS AK-74m animations, FPS pistol animations, and FSB Operator. See `Assets/Art/THIRD_PARTY_ASSETS.md` and the Google Drive `Unity6Builds/IncomingAssets/README.txt`.
+- Incoming Sketchfab assets required: FPS AK-74m animations, FPS pistol animations, FSB Operator, and Abandoned Factory Hall Scan. See `Assets/Art/THIRD_PARTY_ASSETS.md` and the Google Drive `Unity6Builds/IncomingAssets/README.txt`.
 - The AKM PBR material and raw prefab are prepared, but its viewmodel orientation/attachment is not yet calibrated against the final FPS arms rig.
 - No final APK has been built or verified.
 
