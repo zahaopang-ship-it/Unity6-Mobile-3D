@@ -72,109 +72,76 @@ public static class FPSSceneBuilder
 
     private static void BuildEnvironment()
     {
-        Box("Main asphalt slab",new Vector3(0,-.55f,8),new Vector3(76,1,82),darkConcrete);
-        Box("Indoor concrete floor",new Vector3(0,-.08f,12),new Vector3(38,.18f,34),concrete);
-        Box("Warehouse roof",new Vector3(0,8.2f,12),new Vector3(38,.5f,34),darkConcrete);
-        Box("North wall",new Vector3(0,4,29),new Vector3(38,8,1),concrete);
-        Box("West wall",new Vector3(-19,4,12),new Vector3(1,8,34),concrete);
-        Box("East wall",new Vector3(19,4,12),new Vector3(1,8,34),concrete);
-        Box("South west wall",new Vector3(-13,3.6f,-5),new Vector3(12,7,1),concrete);
-        Box("South east wall",new Vector3(13,3.6f,-5),new Vector3(12,7,1),concrete);
-        Box("Loading bay lintel",new Vector3(0,7.2f,-5),new Vector3(14,1.6f,1),concrete);
-        Box("Interior partition A",new Vector3(-7,2.1f,17),new Vector3(1,4.2f,12),darkConcrete);
-        Box("Interior partition B",new Vector3(7,2.1f,17),new Vector3(1,4.2f,12),darkConcrete);
-        Box("Rear divider",new Vector3(0,1.7f,23),new Vector3(14,3.4f,.5f),concrete);
-        Box("Divider doorway left",new Vector3(-4.2f,1.7f,8),new Vector3(5,3.4f,.5f),concrete);
-        Box("Divider doorway right",new Vector3(4.2f,1.7f,8),new Vector3(5,3.4f,.5f),concrete);
-        for(int i=0;i<7;i++)
+        GameObject warehousePrefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Art/Prefabs/Imported/Abandoned_Warehouse.prefab");
+        if(warehousePrefab==null)throw new System.Exception("Imported Abandoned Warehouse prefab is missing. Run Bodycam > Prepare Imported Assets.");
+        GameObject warehouse=PrefabUtility.InstantiatePrefab(warehousePrefab) as GameObject;
+        if(warehouse==null)throw new System.Exception("Could not instantiate imported warehouse.");
+        warehouse.name="Abandoned Warehouse Environment";
+        warehouse.transform.position=new Vector3(-7.08f,0f,10.5f);
+        warehouse.transform.rotation=Quaternion.identity;
+        warehouse.isStatic=true;
+        int colliderCount=0;
+        foreach(MeshFilter filter in warehouse.GetComponentsInChildren<MeshFilter>(true))
         {
-            float z=-1+i*4.5f;
-            Box("Roof beam "+i,new Vector3(0,7.8f,z),new Vector3(38,.22f,.28f),metal);
-            Box("Ceiling light housing "+i,new Vector3((i%2==0?-1:1)*8,7.55f,z),new Vector3(2.1f,.12f,.42f),rubber);
+            if(filter.sharedMesh==null)continue;
+            MeshCollider meshCollider=filter.GetComponent<MeshCollider>();
+            if(meshCollider==null)meshCollider=filter.gameObject.AddComponent<MeshCollider>();
+            meshCollider.sharedMesh=filter.sharedMesh;
+            colliderCount++;
         }
-        for(int side=-1;side<=1;side+=2)
-        {
-            for(int i=0;i<4;i++)
-            {
-                float z=1+i*7.2f;
-                Box("Wall support "+side+" "+i,new Vector3(side*18.2f,4,z),new Vector3(.5f,8,.5f),darkConcrete);
-                Box("Window recess "+side+" "+i,new Vector3(side*18.42f,4.7f,z+2.1f),new Vector3(.08f,1.6f,2.6f),glass);
-            }
-        }
+        if(colliderCount<10)throw new System.Exception("Warehouse collision generation failed: only "+colliderCount+" mesh colliders.");
 
-        // Stacked industrial shipping containers and cover positions.
-        for(int i=0;i<3;i++)
-        {
-            float z=2+i*8.5f;
-            Box("Blue shipping container "+i,new Vector3(-13,1.35f,z),new Vector3(5.2f,2.7f,7.2f),blueMetal);
-            for(int rib=0;rib<9;rib++)Box("Container rib "+i+" "+rib,new Vector3(-15.62f+rib*.65f,1.35f,z),new Vector3(.07f,2.55f,7.15f),metal);
-            Box("Container top seam "+i,new Vector3(-13,2.75f,z),new Vector3(5.25f,.08f,7.25f),metal);
-        }
-        for(int i=0;i<3;i++)
-        {
-            float z=1+i*8.5f;
-            Box("Wooden crate stack "+i,new Vector3(13, .65f,z),new Vector3(2.3f,1.3f,2.3f),wood);
-            Box("Crate upper "+i,new Vector3(13,1.95f,z),new Vector3(2.1f,1.3f,2.1f),wood);
-            for(int x=-1;x<=1;x++)Box("Crate band "+i+" "+x,new Vector3(13+x*.65f,1.95f,z-1.07f),new Vector3(.06f,1.2f,.06f),metal);
-        }
-        for(int i=0;i<7;i++)
-        {
-            float x=-9+i*3;
-            Box("Concrete waist cover "+i,new Vector3(x,.65f,10+(i%2)*5),new Vector3(1.8f,1.3f,1.1f),concrete);
-        }
-        for(int i=0;i<5;i++)
-        {
-            GameObject barrel=Primitive(PrimitiveType.Cylinder,"Oil drum "+i,null,new Vector3(-10+i*5,.65f,25),new Vector3(.52f, .65f,.52f),i%2==0?blueMetal:orange,true);
-            barrel.transform.rotation=Quaternion.identity;
-            Box("Drum rim "+i,new Vector3(-10+i*5,1.28f,25),new Vector3(1.05f,.07f,1.05f),metal);
-        }
-        for(int i=0;i<8;i++)
-        {
-            float x=-15+i*4.2f;
-            Box("Floor hazard stripe "+i,new Vector3(x,-.445f,-1),new Vector3(1.6f,.015f,.12f),orange);
-        }
-        // Exterior yard details, pipes and bollards.
-        for(int i=0;i<6;i++)
-        {
-            Primitive(PrimitiveType.Cylinder,"Safety bollard "+i,null,new Vector3(-16+i*6,.65f,-22),new Vector3(.18f,.65f,.18f),orange);
-        }
-        Box("Outdoor service road",new Vector3(0,-.47f,-27),new Vector3(44,.08f,14),darkConcrete);
-        for(int i=0;i<8;i++)Box("Road dash "+i,new Vector3(-16+i*4.5f,-.42f,-27),new Vector3(2,.02f,.12f),white);
-        Box("Low concrete barrier",new Vector3(0,.45f,-18),new Vector3(16,.9f,.8f),concrete);
-        Box("Pipe run",new Vector3(10,3.6f,13),new Vector3(.25f,.25f,25),metal);
-        Box("Pipe support",new Vector3(10,2.6f,13),new Vector3(.5f,2,.5f),darkConcrete);
-        Box("Pipe support 2",new Vector3(10,2.6f,23),new Vector3(.5f,2,.5f),darkConcrete);
-        Box("Training target backstop",new Vector3(0,2.2f,27.8f),new Vector3(9,4.4f,.35f),darkConcrete);
-        for(int i=0;i<3;i++)
-        {
-            Box("Target plate "+i,new Vector3(-3+i*3,1.6f,27.45f),new Vector3(.75f,1.15f,.12f),orange);
-            Box("Target stand "+i,new Vector3(-3+i*3,.55f,27.45f),new Vector3(.12f,1.1f,.12f),metal);
-        }
+        // The player starts inside the imported warehouse; preserve a small outdoor apron beyond its south entrance.
+        GameObject apron=new GameObject("Exterior asphalt apron");
+        MeshFilter apronFilter=apron.AddComponent<MeshFilter>();
+        Mesh apronMesh=new Mesh();apronMesh.name="Exterior asphalt ground mesh";
+        apronMesh.vertices=new Vector3[]{new Vector3(-24,0,-12),new Vector3(24,0,-12),new Vector3(-24,0,0),new Vector3(24,0,0)};
+        apronMesh.triangles=new int[]{0,2,1,2,3,1};apronMesh.RecalculateNormals();apronFilter.sharedMesh=apronMesh;
+        MeshRenderer apronRenderer=apron.AddComponent<MeshRenderer>();apronRenderer.sharedMaterial=darkConcrete;
+        MeshCollider apronCollider=apron.AddComponent<MeshCollider>();apronCollider.sharedMesh=apronMesh;
+
+        Debug.Log("Imported warehouse integrated: "+colliderCount+" mesh colliders; model offset (-7.08, 0, 10.5).");
     }
-
 
     private static FPSPlayerController BuildPlayer()
     {
-        GameObject root=new GameObject("FPS Player");root.tag="Player";root.transform.position=new Vector3(0,0,-12);
+        GameObject root=new GameObject("FPS Player");root.tag="Player";root.transform.position=new Vector3(0,0,-1.2f);
         CharacterController cc=root.AddComponent<CharacterController>();cc.height=1.72f;cc.radius=.34f;cc.center=Vector3.up*.86f;cc.slopeLimit=48;cc.stepOffset=.28f;
         FPSPlayerController player=root.AddComponent<FPSPlayerController>();
         GameObject pivotObject=new GameObject("Bodycam View Pivot");pivotObject.transform.SetParent(root.transform,false);pivotObject.transform.localPosition=new Vector3(0,1.48f,0);
         player.viewPivot=pivotObject.transform;
         GameObject cameraObject=new GameObject("Bodycam Camera");cameraObject.tag="MainCamera";cameraObject.transform.SetParent(pivotObject.transform,false);
-        Camera cam=cameraObject.AddComponent<Camera>();cam.fieldOfView=82;cam.nearClipPlane=.045f;cam.farClipPlane=180;cam.allowHDR=false;cam.allowMSAA=true;
+        Camera cam=cameraObject.AddComponent<Camera>();cam.fieldOfView=84;cam.nearClipPlane=.045f;cam.farClipPlane=180;cam.allowHDR=false;cam.allowMSAA=true;
         cameraObject.AddComponent<AudioListener>();
-        GameObject weaponMount=new GameObject("First Person Weapon Mount");weaponMount.transform.SetParent(cameraObject.transform,false);weaponMount.transform.localPosition=new Vector3(.22f,-.20f,.48f);
+
+        GameObject weaponMount=new GameObject("First Person Viewmodel Mount");weaponMount.transform.SetParent(cameraObject.transform,false);weaponMount.transform.localPosition=Vector3.zero;
+        const string pistolPath="Assets/Art/Prefabs/Imported/FPS_Pistol_Arms.prefab";
+        const string riflePath="Assets/Art/Prefabs/Imported/FPS_AK74M_Arms.prefab";
+        GameObject pistolSource=AssetDatabase.LoadAssetAtPath<GameObject>(pistolPath);
+        GameObject rifleSource=AssetDatabase.LoadAssetAtPath<GameObject>(riflePath);
+        if(pistolSource==null||rifleSource==null)throw new System.Exception("Imported first-person weapon prefabs are missing. Run Bodycam > Prepare Imported Assets first.");
+        GameObject pistol=PrefabUtility.InstantiatePrefab(pistolSource) as GameObject;
+        GameObject akm=PrefabUtility.InstantiatePrefab(rifleSource) as GameObject;
+        if(pistol==null||akm==null)throw new System.Exception("Could not instantiate imported FPS weapon prefabs.");
+        pistol.name="Pistol View Model";pistol.transform.SetParent(weaponMount.transform,false);pistol.transform.localPosition=new Vector3(.12f,-.27f,.45f);pistol.transform.localRotation=Quaternion.identity;
+        akm.name="AKM View Model";akm.transform.SetParent(weaponMount.transform,false);akm.transform.localPosition=new Vector3(0,-.27f,.45f);akm.transform.localRotation=Quaternion.identity;
+        Animator rifleAnimator=akm.GetComponentInChildren<Animator>(true);
+        if(rifleAnimator==null)throw new System.Exception("Imported AK74M prefab has no Animator component.");
+
         FPSBodycamEffects effects=cameraObject.AddComponent<FPSBodycamEffects>();effects.SetWeaponRoot(weaponMount.transform);
-        BuildGun("Pistol View Model",weaponMount.transform,false);
-        GameObject pistol=weaponMount.transform.Find("Pistol View Model").gameObject;
-        BuildGun("AKM View Model",weaponMount.transform,true);
-        GameObject akm=weaponMount.transform.Find("AKM View Model").gameObject;
         FPSWeapon weapon=root.AddComponent<FPSWeapon>();weapon.aimCamera=cam;weapon.player=player;weapon.cameraEffects=effects;weapon.pistolModel=pistol;weapon.akmModel=akm;
-        weapon.pistolMuzzleFlash=pistol.transform.Find("Muzzle Flash").gameObject;weapon.akmMuzzleFlash=akm.transform.Find("Muzzle Flash").gameObject;
+        weapon.pistolMuzzleFlash=CreateMuzzleFlash(pistol.transform,new Vector3(.06f,.06f,.44f),"Pistol Muzzle Flash");
+        weapon.akmMuzzleFlash=CreateMuzzleFlash(akm.transform,new Vector3(.05f,.015f,1.02f),"AKM Muzzle Flash");
         weapon.audioSource=cameraObject.AddComponent<AudioSource>();weapon.audioSource.playOnAwake=false;weapon.audioSource.spatialBlend=0;
-        effects.SetWeaponRoot(weaponMount.transform);
-        BuildArms(cameraObject.transform,weaponMount.transform);
+        weapon.armsAnimator=rifleAnimator;
         return player;
+    }
+
+    private static GameObject CreateMuzzleFlash(Transform parent,Vector3 localPosition,string objectName)
+    {
+        GameObject flash=new GameObject(objectName);flash.transform.SetParent(parent,false);flash.transform.localPosition=localPosition;
+        Light light=flash.AddComponent<Light>();light.type=LightType.Point;light.color=new Color(1f,.48f,.12f);light.range=2.8f;light.intensity=3.5f;
+        flash.SetActive(false);return flash;
     }
 
     private static void BuildGun(string name,Transform parent,bool rifle)
@@ -230,17 +197,23 @@ public static class FPSSceneBuilder
     {
         GameObject enemy=new GameObject("Training Enemy");enemy.transform.position=new Vector3(0,0,13);
         CapsuleCollider hitbox=enemy.AddComponent<CapsuleCollider>();hitbox.center=new Vector3(0,.9f,0);hitbox.height=1.8f;hitbox.radius=.34f;
-        GameObject visual=new GameObject("Animated target body");visual.transform.SetParent(enemy.transform,false);
-        Primitive(PrimitiveType.Capsule,"Torso",visual.transform,new Vector3(0,1.02f,0),new Vector3(.48f,.55f,.28f),rubber);
-        Primitive(PrimitiveType.Sphere,"Head",visual.transform,new Vector3(0,1.68f,0),new Vector3(.27f,.29f,.25f),skin);
-        Primitive(PrimitiveType.Capsule,"Left arm",visual.transform,new Vector3(-.34f,1.05f,.02f),new Vector3(.16f,.39f,.16f),rubber).transform.localRotation=Quaternion.Euler(0,0,-12);
-        Primitive(PrimitiveType.Capsule,"Right arm",visual.transform,new Vector3(.34f,1.05f,.02f),new Vector3(.16f,.39f,.16f),rubber).transform.localRotation=Quaternion.Euler(0,0,12);
-        Primitive(PrimitiveType.Capsule,"Left leg",visual.transform,new Vector3(-.14f,.38f,0),new Vector3(.19f,.43f,.19f),darkConcrete);
-        Primitive(PrimitiveType.Capsule,"Right leg",visual.transform,new Vector3(.14f,.38f,0),new Vector3(.19f,.43f,.19f),darkConcrete);
-        Primitive(PrimitiveType.Cube,"Chest rig",visual.transform,new Vector3(0,1.02f,.15f),new Vector3(.39f,.38f,.08f),blueMetal);
-        Primitive(PrimitiveType.Cube,"Chest patch",visual.transform,new Vector3(0,1.1f,.20f),new Vector3(.12f,.08f,.015f),orange);
+        GameObject operatorPrefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Art/Prefabs/Imported/FSB_Operator.prefab");
+        if(operatorPrefab==null)throw new System.Exception("Imported FSB Operator prefab is missing.");
+        GameObject visual=PrefabUtility.InstantiatePrefab(operatorPrefab) as GameObject;
+        if(visual==null)throw new System.Exception("Could not instantiate FSB Operator model.");
+        visual.name="FSB Operator Character";visual.transform.SetParent(enemy.transform,false);
+        visual.transform.localPosition=Vector3.zero;visual.transform.localRotation=Quaternion.identity;visual.transform.localScale=Vector3.one;
+        Animator animator=visual.GetComponentInChildren<Animator>(true);
+        if(animator==null)throw new System.Exception("FSB Operator imported model has no Animator.");
+        animator.applyRootMotion=false;animator.cullingMode=AnimatorCullingMode.CullUpdateTransforms;
+        foreach(SkinnedMeshRenderer renderer in visual.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+        {
+            renderer.updateWhenOffscreen=false;
+            renderer.quality=SkinQuality.Bone4;
+        }
 
-        GameObject ragdoll=new GameObject("Ragdoll");ragdoll.transform.SetParent(enemy.transform,false);
+        // Temporary articulated proxy is kept separate from the visible imported character until a bone-mapped ragdoll is calibrated.
+        GameObject ragdoll=new GameObject("Ragdoll Physics Proxies");ragdoll.transform.SetParent(enemy.transform,false);
         Rigidbody torso=RagdollPart(ragdoll.transform,"Ragdoll Torso",new Vector3(0,1.02f,0),new Vector3(.48f,.55f,.28f),rubber,5f,null);
         RagdollPart(ragdoll.transform,"Ragdoll Head",new Vector3(0,1.68f,0),new Vector3(.27f,.29f,.25f),skin,1.2f,torso);
         RagdollPart(ragdoll.transform,"Ragdoll Left Arm",new Vector3(-.34f,1.05f,.02f),new Vector3(.16f,.39f,.16f),rubber,1.4f,torso);
@@ -277,6 +250,8 @@ public static class FPSSceneBuilder
 
     public static void ValidateScene()
     {
+        if(GameObject.Find("FPS Player")==null && System.IO.File.Exists(ScenePath))
+            EditorSceneManager.OpenScene(ScenePath,OpenSceneMode.Single);
         GameObject playerObject=GameObject.Find("FPS Player");
         if(playerObject==null)throw new System.Exception("Validation failed: FPS Player missing.");
         FPSPlayerController player=playerObject.GetComponent<FPSPlayerController>();
@@ -286,14 +261,23 @@ public static class FPSSceneBuilder
         if(weapon.aimCamera==null||weapon.player==null||weapon.pistolModel==null||weapon.akmModel==null)throw new System.Exception("Validation failed: weapon references are incomplete.");
         if(weapon.pistolMuzzleFlash==null||weapon.akmMuzzleFlash==null||weapon.ammoText==null||weapon.weaponText==null)throw new System.Exception("Validation failed: muzzle flash or weapon HUD reference missing.");
         if(Camera.main==null||Camera.main.GetComponent<FPSBodycamEffects>()==null)throw new System.Exception("Validation failed: Bodycam camera/effects missing.");
-        if(playerObject.GetComponentsInChildren<FPSProceduralArmIK>(true).Length<2)throw new System.Exception("Validation failed: both arm IK solvers are required.");
+        if(weapon.pistolModel.GetComponentInChildren<SkinnedMeshRenderer>(true)==null||weapon.akmModel.GetComponentInChildren<SkinnedMeshRenderer>(true)==null)
+            throw new System.Exception("Validation failed: imported skinned first-person weapon/arms models are missing.");
+        if(weapon.pistolModel.GetComponentInChildren<Animator>(true)==null||weapon.akmModel.GetComponentInChildren<Animator>(true)==null)
+            throw new System.Exception("Validation failed: imported first-person animation controllers are missing.");
+        GameObject warehouse=GameObject.Find("Abandoned Warehouse Environment");
+        if(warehouse==null||warehouse.GetComponentsInChildren<MeshCollider>(true).Length<10)
+            throw new System.Exception("Validation failed: imported warehouse or its collision meshes are missing.");
         GameObject enemy=GameObject.Find("Training Enemy");
         if(enemy==null)throw new System.Exception("Validation failed: training enemy missing.");
+        GameObject operatorModel=enemy.transform.Find("FSB Operator Character")?.gameObject;
+        if(operatorModel==null||operatorModel.GetComponentsInChildren<SkinnedMeshRenderer>(true).Length<5||operatorModel.GetComponentInChildren<Animator>(true)==null)
+            throw new System.Exception("Validation failed: imported FSB Operator character meshes or Animator are missing.");
         FPSDamageable damage=enemy.GetComponent<FPSDamageable>();
         if(damage==null||damage.ragdollRoot==null||damage.ragdollRoot.GetComponentsInChildren<Rigidbody>(true).Length<5)throw new System.Exception("Validation failed: enemy ragdoll setup incomplete.");
         if(GameObject.Find("EventSystem")==null||GameObject.Find("FIRE Button")==null||GameObject.Find("AIM Button")==null||GameObject.Find("RELOAD Button")==null||GameObject.Find("SWAP Button")==null)
             throw new System.Exception("Validation failed: required mobile touch UI or EventSystem missing.");
-        Debug.Log("FPS SCENE VALIDATION PASSED: player, mobile controls, camera, weapons, IK, enemy and ragdoll references are present.");
+        Debug.Log("FPS SCENE VALIDATION PASSED: player, mobile controls, Bodycam camera, imported weapon models and animations, enemy and ragdoll references are present.");
     }
 
     private static void BuildHUD(FPSPlayerController player)
