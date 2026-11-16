@@ -11,6 +11,7 @@
 - **FPS AK-74m animations** — Cransh: https://sketchfab.com/3d-models/fps-ak-74m-animations-94be8385c402474cacd39bc096c6ca14. 40,024 faces / 20,823 vertices. Includes first-person arms, AK-74m weapon model, rig, and animations. Candidate first-person rifle rig; if keeping the Asset Store AKM, inspect its weapon attachment bones and fit the AKM mesh in Blender.
 - **FPS pistol animations** — Cransh: https://sketchfab.com/3d-models/fps-pistol-animations-0d7a343dcb6f401197a73c91aee93f6d. 32,670 faces / 16,607 vertices. Includes FP arms, Springfield Armory XD Mod.2 Sub-Compact pistol, rig, and animations.
 - **FSB Operator** — SpatialNeglect: https://sketchfab.com/3d-models/none-43a561e941704eefb1ab0614be4f0049. 114,273 faces / 60,095 vertices. CC BY 4.0. Verify rig state after download; if unrigged, use Mixamo, then reduce mesh complexity and create LODs for mobile.
+- **Abandoned Factory Hall Scan** — Pers Scans: https://sketchfab.com/3d-models/abandoned-factory-hall-scan-7fb5d8645766499388f6c2068abe3cc7. CC BY 4.0. About 100,500 triangles / 51,800 vertices. Photogrammetry scan of an abandoned factory hall in Berlin; candidate static environment. Decimate and optimize textures/LODs in Blender for Android before use.
 
 These incoming assets are not yet present in the project. Their archives must be placed in Google Drive `My Drive/Unity6Builds/IncomingAssets/`, integrity-tested, imported, and inspected before they can be considered usable.
 
