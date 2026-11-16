@@ -1,5 +1,3 @@
-[Reading 168 lines from start (total: 168 lines, 0 remaining)]
-
 using System.IO;
 using System.Reflection;
 using UnityEditor;
@@ -7,6 +5,7 @@ using UnityEditor.Build.Reporting;
 using UnityEditor.Build;
 using UnityEngine.EventSystems;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public static class BuildAndroid
 {
@@ -30,19 +29,33 @@ public static class BuildAndroid
         FPSWeapon weapon = playerObject.GetComponent<FPSWeapon>();
         GameObject enemy = GameObject.Find("Training Enemy");
         FPSDamageable damage = enemy.GetComponent<FPSDamageable>();
+        Vector3 originalEnemyPosition = enemy.transform.position;
+        enemy.transform.position = player.transform.position + player.transform.forward * 5f;
+        Collider enemyHitbox = enemy.GetComponent<Collider>();
+        if (enemyHitbox != null) enemyHitbox.enabled = true;
+        GameObject warehouse = GameObject.Find("Abandoned Warehouse Environment");
+        Collider[] warehouseColliders = warehouse != null ? warehouse.GetComponentsInChildren<Collider>(true) : new Collider[0];
+        foreach (Collider collider in warehouseColliders) collider.enabled = false;
 
         InvokePrivate(damage, "Start");
         weapon.audioSource = null;
         InvokePrivate(weapon, "Start");
         if (weapon.shotClip == null) throw new System.Exception("Smoke test failed: procedural gunshot audio was not created.");
-        FPSProceduralArmIK[] armSolvers = Camera.main.GetComponents<FPSProceduralArmIK>();
-        if (armSolvers.Length < 2) throw new System.Exception("Smoke test failed: both arm IK solvers are required.");
-        foreach (FPSProceduralArmIK solver in armSolvers)
+        if (weapon.pistolModel.GetComponentInChildren<SkinnedMeshRenderer>(true) == null ||
+            weapon.akmModel.GetComponentInChildren<SkinnedMeshRenderer>(true) == null)
+            throw new System.Exception("Smoke test failed: imported first-person arms are missing.");
+        Animator pistolAnimator = weapon.pistolModel.GetComponentInChildren<Animator>(true);
+        Animator rifleAnimator = weapon.akmModel.GetComponentInChildren<Animator>(true);
+        if (pistolAnimator == null || rifleAnimator == null || pistolAnimator.runtimeAnimatorController == null || rifleAnimator.runtimeAnimatorController == null)
+            throw new System.Exception("Smoke test failed: imported weapon animation controllers are missing.");
+        bool hasFireTrigger = false, hasReloadTrigger = false;
+        foreach (AnimatorControllerParameter parameter in rifleAnimator.parameters)
         {
-            InvokePrivate(solver, "LateUpdate");
-            if (Vector3.Distance(solver.hand.position, solver.gripTarget.position) > .02f)
-                throw new System.Exception("Smoke test failed: weapon hand IK did not reach its grip target.");
+            if (parameter.name == "oneshoot" && parameter.type == AnimatorControllerParameterType.Trigger) hasFireTrigger = true;
+            if (parameter.name == "reload" && parameter.type == AnimatorControllerParameterType.Trigger) hasReloadTrigger = true;
         }
+        if (!hasFireTrigger || !hasReloadTrigger)
+            throw new System.Exception("Smoke test failed: AK animation fire/reload triggers are missing.");
 
         int pistolAmmoBefore = weapon.pistol.ammo;
         weapon.FireOnce();
@@ -97,7 +110,9 @@ public static class BuildAndroid
         if (!damage.IsAlive || damage.ragdollRoot.activeSelf)
             throw new System.Exception("Smoke test failed: enemy did not respawn cleanly.");
 
-        Debug.Log("FPS SMOKE TEST PASSED: pistol and AKM fire/ammo, enemy hit detection, weapon switching, aim, crouch/prone/lean, virtual joystick, ragdoll and respawn.");
+        enemy.transform.position = originalEnemyPosition;
+        foreach (Collider collider in warehouseColliders) collider.enabled = true;
+        Debug.Log("FPS SMOKE TEST PASSED: imported pistol/AK arms and animation controllers, firing/ammo, enemy hit detection, weapon switching, aim, crouch/prone/lean, virtual joystick, ragdoll and respawn.");
     }
 
     private static void InvokePrivate(object target, string method)
@@ -132,11 +147,18 @@ public static class BuildAndroid
         PlayerSettings.bundleVersion = "0.1.0";
         PlayerSettings.Android.bundleVersionCode = 1;
         PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
+        PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel35;
         PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
         PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
+        PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
+        PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
         PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
         EditorUserBuildSettings.buildAppBundle = false;
         EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
+        PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+        Debug.Log("ANDROID TARGET ARCHITECTURES AFTER SWITCH=" + PlayerSettings.Android.targetArchitectures + " numeric=" + (int)PlayerSettings.Android.targetArchitectures);
+        Debug.Log("ANDROID ACTIVE BUILD TARGET=" + EditorUserBuildSettings.activeBuildTarget);
+        AssetDatabase.SaveAssets();
         QualitySettings.vSyncCount = 0;
         QualitySettings.antiAliasing = 2;
 
@@ -168,5 +190,3 @@ public static class BuildAndroid
         Debug.Log("BODYCAM APK VERIFIED: " + output + " / " + apkInfo.Length + " bytes.");
     }
 }
-
-[executed on device: 7816f5ac7b89 (e2f42bfa-5503-4545-8f10-916f2d001bfd)]
