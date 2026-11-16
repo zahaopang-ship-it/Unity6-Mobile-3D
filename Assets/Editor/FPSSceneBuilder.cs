@@ -23,7 +23,6 @@ public static class FPSSceneBuilder
         RenderSettings.fog = true; RenderSettings.fogColor = new Color(.30f,.34f,.38f); RenderSettings.fogDensity = .0035f;
 
         BuildEnvironment();
-        BuildKenneyBackdrop();
         FPSPlayerController player = BuildPlayer();
         BuildEnemy(player.transform);
         BuildLighting();
@@ -153,32 +152,6 @@ public static class FPSSceneBuilder
         }
     }
 
-
-    private static void BuildKenneyBackdrop()
-    {
-        PlaceKenney("building-a.fbx","Industrial block A",new Vector3(27,0,10),new Vector3(1.15f,1.15f,1.15f),Quaternion.Euler(0,180,0));
-        PlaceKenney("building-f.fbx","Industrial block B",new Vector3(-28,0,15),Vector3.one,Quaternion.identity);
-        PlaceKenney("building-k.fbx","Industrial block C",new Vector3(28,0,-20),Vector3.one,Quaternion.Euler(0,90,0));
-        PlaceKenney("water-tower.fbx","Distant water tower",new Vector3(-25,0,-24),Vector3.one,Quaternion.identity);
-        PlaceKenney("chimney-large.fbx","Factory chimney",new Vector3(26,0,27),Vector3.one,Quaternion.identity);
-        PlaceKenney("detail-tank-large.fbx","Industrial storage tank",new Vector3(-25,0,29),Vector3.one,Quaternion.identity);
-        PlaceKenney("shipping-container-a.fbx","Detailed shipping container",new Vector3(-12,0,20),Vector3.one,Quaternion.Euler(0,90,0));
-    }
-
-    private static void PlaceKenney(string file,string objectName,Vector3 position,Vector3 scale,Quaternion rotation)
-    {
-        string path="Assets/Art/KenneyIndustrial/Models/FBX format/"+file;
-        GameObject prefab=AssetDatabase.LoadAssetAtPath<GameObject>(path);
-        if(prefab==null){Debug.LogWarning("Optional CC0 model not found: "+path);return;}
-        GameObject instance=(GameObject)PrefabUtility.InstantiatePrefab(prefab);
-        instance.name=objectName;instance.transform.position=position;instance.transform.rotation=rotation;instance.transform.localScale=scale;
-        Renderer[] renderers=instance.GetComponentsInChildren<Renderer>();
-        if(renderers.Length>0)
-        {
-            Bounds bounds=renderers[0].bounds;for(int i=1;i<renderers.Length;i++)bounds.Encapsulate(renderers[i].bounds);
-            BoxCollider collider=instance.AddComponent<BoxCollider>();collider.center=instance.transform.InverseTransformPoint(bounds.center);collider.size=bounds.size;
-        }
-    }
 
     private static FPSPlayerController BuildPlayer()
     {
