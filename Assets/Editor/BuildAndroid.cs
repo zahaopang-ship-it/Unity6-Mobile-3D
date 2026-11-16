@@ -1,3 +1,5 @@
+[Reading 168 lines from start (total: 168 lines, 0 remaining)]
+
 using System.IO;
 using System.Reflection;
 using UnityEditor;
@@ -123,12 +125,13 @@ public static class BuildAndroid
     {
         ValidateOnly();
         RunSmokeTests();
+        FPSBuildValidation.ValidateFinalAssets();
         PlayerSettings.productName = "Bodycam FPS Mobile";
         PlayerSettings.companyName = "Zahaopang Studio";
         PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.zahaopang.bodycamfps");
         PlayerSettings.bundleVersion = "0.1.0";
         PlayerSettings.Android.bundleVersionCode = 1;
-        PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel23;
+        PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
         PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
         PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
         PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
@@ -144,19 +147,26 @@ public static class BuildAndroid
             scenes = new[] { FPSSceneBuilder.ScenePath },
             locationPathName = output,
             target = BuildTarget.Android,
-            options = BuildOptions.None
+            options = BuildOptions.StrictMode | BuildOptions.CompressWithLz4
         };
 
         BuildReport report = BuildPipeline.BuildPlayer(options);
         if (report.summary.result != BuildResult.Succeeded)
             throw new System.Exception("Android build failed: " + report.summary.result +
                 " | Errors: " + report.summary.totalErrors + " | Warnings: " + report.summary.totalWarnings);
+        if (!File.Exists(output)) throw new System.Exception("Unity reported success but APK is missing: " + output);
+        FileInfo apkInfo = new FileInfo(output);
+        if (apkInfo.Length < 5 * 1024 * 1024)
+            throw new System.Exception("APK is unexpectedly small; refusing to report it as valid: " + apkInfo.Length + " bytes.");
         File.WriteAllText("build/Android/build-summary.txt",
             "Build: " + report.summary.result + "\n" +
             "Size: " + report.summary.totalSize + "\n" +
+            "APK bytes: " + apkInfo.Length + "\n" +
             "Errors: " + report.summary.totalErrors + "\n" +
             "Warnings: " + report.summary.totalWarnings + "\n" +
             "APK: " + output + "\n");
-        Debug.Log("BODYCAM APK CREATED: " + output);
+        Debug.Log("BODYCAM APK VERIFIED: " + output + " / " + apkInfo.Length + " bytes.");
     }
 }
+
+[executed on device: 7816f5ac7b89 (e2f42bfa-5503-4545-8f10-916f2d001bfd)]
