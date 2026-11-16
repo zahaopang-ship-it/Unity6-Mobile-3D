@@ -28,5 +28,5 @@ Target: Android ARM64, Landscape, Realme 8 / Helio G95
 
 ## Recovery
 - Original untouched backup: Google Drive `Unity6Builds/BodycamProjectSource_2026-11-16.zip`.
-- Latest Unity 6.3 source archive: `BodycamProjectSource_2026-11-16_Unity63Checkpoint4.zip`; its ZIP integrity test passed.
+- Latest Unity 6.3 source archive: `BodycamProjectSource_2026-11-16_Unity63Checkpoint5.zip`; its ZIP integrity test passed.
 - Extract the latest checkpoint and open it with Unity 6000.3.28f1. Keep the original backup untouched.
