@@ -5,7 +5,7 @@
 - Original full project archive: Google Drive `My Drive/Unity6Builds/BodycamProjectSource_2026-11-16.zip` (about 53 MB); `unzip -t` passed.
 - Unity 6.3 checkpoint archive 1: `My Drive/Unity6Builds/BodycamProjectSource_2026-11-16_Unity63Checkpoint1.zip` (32 MB, 170 files), integrity test passed.
 - Latest checkpoint archive 2: `My Drive/Unity6Builds/BodycamProjectSource_2026-11-16_Unity63Checkpoint2.zip` (32 MB, 173 files), integrity test passed.
-- Incoming model folder: Google Drive `My Drive/Unity6Builds/IncomingAssets/` with a README listing the three required Sketchfab downloads.
+- Incoming model folder: Google Drive `My Drive/Unity6Builds/IncomingAssets/` with a README listing the four required Sketchfab downloads.
 - Recovery instructions: `RECOVERY.md`.
 - Current isolated Unity 6.3 working copy: `/content/work/Unity6-Mobile-3D-Unity63`.
 - Original workspace remains at `/content/work/Unity6-Mobile-3D`; do not overwrite it.
@@ -40,7 +40,7 @@
 ## Known unfinished scene work
 - The current scene builder still contains primitive placeholder weapons, arms, enemy geometry, and environment pieces. These are not acceptable for the final game.
 - The older Cransh `Arm3.fbx` pack is CC BY 4.0, but its author notes glitchy rifle vertices; do not use it as the final viewmodel.
-- Incoming approved Sketchfab assets are listed in `Assets/Art/THIRD_PARTY_ASSETS.md`: FPS AK-74m animations, FPS pistol animations, and FSB Operator.
+- Incoming approved Sketchfab assets are listed in `Assets/Art/THIRD_PARTY_ASSETS.md`: FPS AK-74m animations, FPS pistol animations, FSB Operator, and Abandoned Factory Hall Scan.
 - Do not build or deliver a final APK until the real weapon/viewmodel, enemy character, and environment assets are integrated and validated.
 
 ## Build status
