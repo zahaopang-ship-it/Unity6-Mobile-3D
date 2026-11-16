@@ -45,11 +45,11 @@ public static class FPSImportedAssetSetup
         importer.importAnimation = animations;
         importer.importCameras = false;
         importer.importLights = false;
-        importer.importMaterials = true;
         importer.materialImportMode = ModelImporterMaterialImportMode.ImportStandard;
         importer.meshCompression = ModelImporterMeshCompression.Medium;
         importer.isReadable = false;
-        importer.optimizeMesh = true;
+        importer.optimizeMeshPolygons = true;
+        importer.optimizeMeshVertices = true;
         importer.SaveAndReimport();
     }
 
@@ -66,18 +66,19 @@ public static class FPSImportedAssetSetup
         var controller = AnimatorController.CreateAnimatorControllerAtPath(controllerPath);
         var sm = controller.layers[0].stateMachine;
         AnimatorState idle = null;
+        var states = new Dictionary<string, AnimatorState>(StringComparer.OrdinalIgnoreCase);
         foreach (var clip in clips)
         {
             AnimatorState state = sm.AddState(clip.name);
             state.motion = clip;
+            states[clip.name] = state;
             if (idle == null && (string.IsNullOrEmpty(defaultClip) || clip.name.IndexOf(defaultClip, StringComparison.OrdinalIgnoreCase) >= 0)) idle = state;
         }
         if (idle != null) sm.defaultState = idle;
         foreach (var key in desired)
         {
-            bool found = false;
-            foreach (var clip in clips) if (clip.name.IndexOf(key, StringComparison.OrdinalIgnoreCase) >= 0) { found = true; break; }
-            if (!found) Debug.LogWarning("Expected animation clip not found: " + key + " in " + modelPath);
+            var clip = FindClip(clips, key);
+            if (clip == null) Debug.LogWarning("Expected animation clip not found: " + key + " in " + modelPath);
         }
         var instance = PrefabUtility.InstantiatePrefab(source) as GameObject;
         if (instance == null) throw new InvalidOperationException("Could not instantiate " + modelPath);
@@ -88,6 +89,12 @@ public static class FPSImportedAssetSetup
         animator.applyRootMotion = false;
         PrefabUtility.SaveAsPrefabAsset(instance, prefabPath);
         UnityEngine.Object.DestroyImmediate(instance);
+    }
+
+    private static AnimationClip FindClip(List<AnimationClip> clips, string name)
+    {
+        foreach (var clip in clips) if (clip.name.IndexOf(name, StringComparison.OrdinalIgnoreCase) >= 0) return clip;
+        return null;
     }
 
     private static void CreateStaticPrefab(string modelPath, string prefabPath)
