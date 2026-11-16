@@ -5,7 +5,7 @@
 - Original full project archive: Google Drive `My Drive/Unity6Builds/BodycamProjectSource_2026-11-16.zip` (about 53 MB); `unzip -t` passed.
 - Unity 6.3 checkpoint archive 1: `My Drive/Unity6Builds/BodycamProjectSource_2026-11-16_Unity63Checkpoint1.zip`; integrity test passed.
 - Unity 6.3 checkpoint archive 2: `My Drive/Unity6Builds/BodycamProjectSource_2026-11-16_Unity63Checkpoint2.zip`; integrity test passed.
-- Latest checkpoint archive 4: `My Drive/Unity6Builds/BodycamProjectSource_2026-11-16_Unity63Checkpoint4.zip`; integrity test passed after adding the factory scan asset requirement.
+- Latest checkpoint archive 5: `My Drive/Unity6Builds/BodycamProjectSource_2026-11-16_Unity63Checkpoint5.zip`; integrity test passed after adding the factory scan asset requirement.
 - Incoming model folder: Google Drive `My Drive/Unity6Builds/IncomingAssets/` with a README listing four required Sketchfab downloads.
 - Recovery instructions: `RECOVERY.md`.
 - Current isolated Unity 6.3 working copy: `/content/work/Unity6-Mobile-3D-Unity63`.
