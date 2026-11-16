@@ -1,5 +1,3 @@
-[Reading 77 lines from start (total: 77 lines, 0 remaining)]
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -34,18 +32,14 @@ public static class FPSBuildValidation
         var missing = new List<string>();
         var akm = AssetDatabase.LoadAssetAtPath<GameObject>(AkmPrefabPath);
         if (!akm)
-        {
             missing.Add("Prepared Asset Store AKM prefab is missing: " + AkmPrefabPath);
-        }
         else if (akm.GetComponentsInChildren<Renderer>(true).Length < 1)
-        {
             missing.Add("Prepared AKM prefab has no renderers.");
-        }
 
         RequireModelFolder("Assets/Art/ThirdParty/Sketchfab/FPS_AK74M", "FPS rifle arms/animation model", missing);
         RequireModelFolder("Assets/Art/ThirdParty/Sketchfab/FPS_Pistol", "FPS pistol arms/animation model", missing);
         RequireModelFolder("Assets/Art/ThirdParty/Sketchfab/FSB_Operator", "full-body enemy character", missing);
-        RequireModelFolder("Assets/Art/Environment/FactoryHall", "factory hall environment", missing);
+        RequireModelFolder("Assets/Art/Environment/Abandoned_Warehouse", "abandoned warehouse environment", missing);
 
         var sceneBuilder = "Assets/Editor/FPSSceneBuilder.cs";
         if (File.Exists(sceneBuilder))
@@ -77,5 +71,3 @@ public static class FPSBuildValidation
             missing.Add("No FBX/GLB/GLTF model found for " + label + " under " + folder);
     }
 }
-
-[executed on device: 7816f5ac7b89 (e2f42bfa-5503-4545-8f10-916f2d001bfd)]
