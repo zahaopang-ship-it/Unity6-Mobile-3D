@@ -2,46 +2,55 @@
 
 ## Recovery points
 - Recovery branch: `bodycam-rebuild-2026-11-16`.
-- Full project archive: Google Drive `My Drive/Unity6Builds/BodycamProjectSource_2026-11-16.zip` (about 53 MB); `unzip -t` passed.
+- Original full project archive: Google Drive `My Drive/Unity6Builds/BodycamProjectSource_2026-11-16.zip` (about 53 MB); `unzip -t` passed.
+- Verified Unity 6.3 checkpoint archive: Google Drive `My Drive/Unity6Builds/BodycamProjectSource_2026-11-16_Unity63Checkpoint1.zip` (32 MB, 170 files); `unzip -t` passed.
+- Incoming model folder: Google Drive `My Drive/Unity6Builds/IncomingAssets/` with a README listing the three required Sketchfab downloads.
 - Recovery instructions: `RECOVERY.md`.
 - Current isolated Unity 6.3 working copy: `/content/work/Unity6-Mobile-3D-Unity63`.
-- Original workspace remains at `/content/work/Unity6-Mobile-3D`; do not overwrite it during migration.
+- Original workspace remains at `/content/work/Unity6-Mobile-3D`; do not overwrite it.
 
 ## Unity environment
 - Remote Desktop Commander device `7816f5ac7b89` was online during this run.
-- DNS resolved Unity and GitHub hosts.
+- DNS resolves Unity and GitHub hosts.
 - Unity CLI account sign-in is active.
-- Unity Personal entitlement was activated successfully inside a corrected cgroup namespace; the Editor subsequently launched and resolved entitlement details.
+- `unity license status --verbose` inside a fresh cgroup namespace reports **Unity Personal — Assigned** and **Asset Store — Assigned**.
 - Unity Editor `6000.3.28f1` is installed and verified.
-- Android Build Support, Android SDK/NDK Tools, and OpenJDK modules are present.
-- The earlier `6000.0.86f1` install was rejected because the account does not have Extended LTS entitlement; do not retry that version.
-- Run Unity CLI/Editor processes inside `unshare --cgroup --fork` in this Colab container. Without a fresh cgroup namespace, Licensing Client 1.19.0 can crash while traversing the container's unusual cgroup path.
+- Android Build Support, Android SDK/NDK Tools, and OpenJDK modules are installed.
+- Use `unshare --cgroup --fork` for Unity CLI/Editor processes in this container; it avoids the Licensing Client crash caused by the container's unusual cgroup path.
+- The earlier `6000.0.86f1` install was rejected because the account does not have Extended LTS entitlement; do not retry it.
 
 ## Project migration and compilation
-- Working copy was created from the original project while excluding generated Library/Temp/Obj/Logs/Build folders.
-- Project originally targeted Unity `6000.0.40f1`; the isolated working copy is being migrated with Unity `6000.3.28f1`.
-- Added built-in dependency `com.unity.modules.animation: 1.0.0` to the manifest.
-- Removed the non-approved itch.io Kevin Iglesias asset folder and the source-unverified Microsoft MIT MaleSoldier03 model from the isolated working copy.
-- Batch import/compile completed in Unity 6.3 after the manifest fix; no C# compiler errors were present in the final import log.
-- `FPSWeapon.cs` now gates mouse-click firing to Editor/Standalone only. Android touch taps outside the explicit fire UI will no longer trigger shots. Animator hooks were added for firing, reload, draw, and movement speed.
-- `FPSSceneBuilder.cs` no longer calls or contains the Kenney industrial backdrop loader.
+- Working copy created from the original project, excluding generated Library/Temp/Obj/Logs/Build folders.
+- `ProjectSettings/ProjectVersion.txt` now identifies Unity `6000.3.28f1`.
+- Added `com.unity.modules.animation: 1.0.0` to `Packages/manifest.json`.
+- Removed the non-approved itch.io Kevin Iglesias asset folder and the source-unverified MaleSoldier03 model from this isolated working copy.
+- Unity 6.3 batch import/compile completed without C# compiler errors.
+- `BuildAndroid.ValidateOnly` completed and the scene validation reported `FPS SCENE VALIDATION PASSED`. This is an Editor-side structural check, not proof of Android device behavior.
+- `FPSWeapon.cs` now gates mouse-click firing to Editor/Standalone only; Android touch taps outside the explicit fire UI will not trigger shots. Optional Animator hooks were added for shooting, reload, draw, and movement speed.
+- `FPSSceneBuilder.cs` no longer contains or calls the Kenney industrial backdrop loader.
+
+## AKM asset preparation
+- The imported AKM is from **FPS AKM - Model & Textures** by ChamferZone, Unity Asset Store.
+- Added `Assets/Editor/FPSAssetSetup.cs`, which configures the AKM textures, builds a Standard PBR material, and creates a reusable prefab.
+- Verified outputs: `Assets/Art/Weapons/AKM/Materials/AKM_PBR.mat` and `Assets/Art/Weapons/AKM/Prefabs/AKM_AssetStore_PBR.prefab`; the prefab contains two renderers.
+- Base colour/normal maps are capped at 2048; metallic/smoothness and occlusion maps at 1024; Android overrides use ASTC 6x6.
+- AKM material and raw prefab are prepared, but viewmodel orientation and attachment must still be calibrated against the final incoming FPS arms rig.
 
 ## Known unfinished scene work
-- The current scene builder still contains primitive placeholder weapons, arms, and enemy geometry. These are not acceptable for the final game and must be replaced with verified Asset Store/Sketchfab models.
-- The existing Cransh `Arm3.fbx` pack is CC BY 4.0, but its author notes glitchy rifle vertices. Do not use it as the final first-person viewmodel.
-- The Asset Store AKM source is identified as **FPS AKM - Model & Textures** by ChamferZone. Its FBX has main/magazine anchors; its current Unity materials need rebuilding from the supplied base-colour, normal, metallic/smoothness, and occlusion textures.
-- Required incoming Sketchfab models are listed in `Assets/Art/THIRD_PARTY_ASSETS.md`: a better FPS AK-74m viewmodel/animation pack, a pistol FPS animation pack, and a full-body FSB Operator character.
-- Do not build or deliver a final APK until real weapon/viewmodel and enemy assets are integrated and validated.
+- The current scene builder still contains primitive placeholder weapons, arms, enemy geometry, and environment pieces. These are not acceptable for the final game.
+- The older Cransh `Arm3.fbx` pack is CC BY 4.0, but its author notes glitchy rifle vertices; do not use it as the final viewmodel.
+- Incoming approved Sketchfab assets are listed in `Assets/Art/THIRD_PARTY_ASSETS.md`: FPS AK-74m animations, FPS pistol animations, and FSB Operator.
+- Do not build or deliver a final APK until the real weapon/viewmodel, enemy character, and environment assets are integrated and validated.
 
 ## Build status
 - No new APK has been built or verified.
 - Older APKs in Drive are not new builds and must not be delivered as the result of this checkpoint.
-- Preserve the original Drive ZIP and make a fresh checkpoint before any destructive migration or asset replacement.
+- Preserve the original ZIP and the Unity 6.3 checkpoint ZIP. Create a new checkpoint before destructive migration or asset replacement.
 
 ## Target and constraints
 - Android ARM64, Landscape.
-- Optimize for Realme 8 / Helio G95 / 8 GB RAM: reduce texture sizes, compress textures appropriately, keep viewmodel/enemy triangle counts and draw calls controlled.
+- Optimize for Realme 8 / Helio G95 / 8 GB RAM.
 - Use Unity Asset Store or Sketchfab assets only.
 - Inspect and prepare imported models in Blender; use Mixamo where a full-body character needs a compatible rig/animations.
 - Never use Kenney assets.
-- Do not claim any step succeeded without checking the actual logs/files.
+- Never claim a step succeeded without checking the actual logs/files.
