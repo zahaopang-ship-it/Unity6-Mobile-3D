@@ -10,6 +10,7 @@
 - **FPS AK-74m animations** — Cransh: https://sketchfab.com/3d-models/fps-ak-74m-animations-94be8385c402474cacd39bc096c6ca14. CC BY 4.0. 40,024 faces / 20,823 vertices. Includes first-person arms, weapon, rig and animations.
 - **FPS pistol animations** — Cransh: https://sketchfab.com/3d-models/fps-pistol-animations-0d7a343dcb6f401197a73c91aee93f6d. CC BY 4.0. 32,670 faces / 16,607 vertices. Includes first-person arms, Springfield Armory XD Mod.2 Sub-Compact pistol, rig and animations.
 - **FSB Operator** — SpatialNeglect: https://sketchfab.com/3d-models/none-43a561e941704eefb1ab0614be4f0049. CC BY 4.0. 114,273 faces / 60,095 vertices. Verify rigging and optimize/LOD for mobile; use Mixamo if unrigged.
+- **Abandoned Factory Hall Scan** — Pers Scans: https://sketchfab.com/3d-models/abandoned-factory-hall-scan-7fb5d8645766499388f6c2068abe3cc7. CC BY 4.0. About 100,500 triangles / 51,800 vertices. Photogrammetry scan of an abandoned factory hall in Berlin; candidate static environment. Decimate and optimize textures/LODs in Blender for Android before use.
 
 Place downloaded archives in Google Drive `My Drive/Unity6Builds/IncomingAssets/`. Test archive integrity before import. Inspect each model in Blender for orientation, scale, materials, textures, rig, animation, and mobile complexity. Keep original archives and attribution files.
 
