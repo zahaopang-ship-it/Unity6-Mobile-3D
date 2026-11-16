@@ -7,8 +7,8 @@
 - `Assets/Art/ThirdParty/RifleFPSHands/Animated FPS hands (rifle animation pack)/Beretta Pistol FPS ANIMATION_Information.txt` identifies the Beretta pistol FPS animation asset by BURNER, Sketchfab URL `https://skfb.ly/oAKR8`, CC BY 4.0.
 
 ## Provenance not yet verified
-- `Assets/Art/Characters/MaleSoldier03/` contains GLB character and animation files, but the local project files inspected so far do not contain a source URL or attribution record. Do not redistribute/use as a final asset until its Sketchfab/Asset Store source and exact license are confirmed.
-- `Assets/Art/Weapons/AKM/` contains an FBX and PBR textures, but the inspected project files do not establish its source URL or license. Do not treat it as cleared until verified.
+- `Assets/Art/Characters/MaleSoldier03/` GLB metadata explicitly embeds a Microsoft MIT License notice (Copyright (c) 2020 Microsoft). The license permits use subject to retaining the copyright and permission notice, but its source platform has not been verified as Unity Asset Store or Sketchfab; do not use in the final project until the source requirement is resolved.
+- `Assets/Art/Weapons/AKM/AKM_Anchors.fbx` identifies `/content/work/AKM_Anchors_Source.blend` as its source project, but the inspected files do not identify the model author, original download page, or license. Do not use it as a final asset until provenance and license are verified.
 - The `Assets/Art/THIRD_PARTY_ASSETS.md` file did not provide usable attribution details during this audit.
 
 ## Required rebuild approach
