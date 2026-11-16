@@ -1,45 +1,41 @@
-# Bodycam FPS Mobile (Unity 6)
+# Bodycam FPS Mobile — Unity 6
 
-A landscape Android first-person shooter prototype built for touch screens. The project is configured for Unity 6000.0.40f1, Android ARM64 and IL2CPP.
+A mobile-first, landscape Android FPS prototype. The current project workspace is built with Unity 6 and targets Android ARM64 / IL2CPP.
 
-## Current prototype systems
-- Mobile virtual movement joystick and right-side touch look.
-- Bodycam-style first-person camera motion, weapon sway, recoil and aim FOV.
-- Pistol and AKM, semi/automatic fire, ammo, reload and weapon switching.
-- Aim, crouch, prone, left/right lean and sprint touch controls.
-- Training enemy with health, physical ragdoll and timed respawn.
-- Procedural two-bone arm IK targets for first-person weapon holding.
-- Industrial training yard / warehouse test map.
-- Optional Kenney City Kit Industrial models (CC0); the scene builder falls back to generated geometry when the pack is absent.
+## Current project scope
 
-## Touch controls
-- Left joystick: movement.
-- Drag the empty right side: look.
-- FIRE: shoot (hold for AKM automatic fire).
-- AIM: hold to aim.
-- SWAP / RELOAD: change weapon / reload.
-- CROUCH / PRONE: change stance.
-- LEAN L / LEAN R: toggle camera lean.
-- SPRINT: hold to run.
+- Touchscreen movement joystick and right-side look input.
+- Bodycam-inspired camera sway, recoil and aiming.
+- Pistol and AKM weapon systems, firing, ammunition, reload and weapon switching.
+- Crouch, prone, lean and sprint controls.
+- Training target, damage and ragdoll prototype.
+- Procedural first-person arm IK prototype.
+- Industrial training environment.
 
-## Free environment assets
-The scene can use Kenney City Kit (Industrial), released under CC0. The pack's License.txt is included with the downloaded files. The pack is available at:
-https://kenney.nl/assets/city-kit-industrial
+## Important development status
 
-For this build, the ZIP is also saved in Google Drive at:
-My Drive/Unity6Builds/KenneyIndustrialPack.zip
+This is an in-progress prototype, **not a finished Bodycam clone**. The scene builder and older prototype visuals still require replacement with properly rigged character and weapon assets, animation integration, and real-device testing. Do not treat a successful editor-side validation as proof that the APK works correctly on a phone.
 
-Extract the Models/FBX format folder and License.txt to:
-Assets/Art/KenneyIndustrial/
+**Asset rule for the rebuild:** use assets from Unity Asset Store or Sketchfab only, check each asset's license and attribution requirements, and use Blender for inspection/cleanup. Mixamo may be used for compatible character animations. Do not add Kenney assets.
 
-## Build Android APK
-1. Open the project with Unity 6000.0.40f1.
-2. Ensure Android Build Support, Android SDK & NDK Tools, and OpenJDK are installed.
-3. Activate a valid Unity Personal license on the build machine.
-4. Run the editor in batch mode:
-   bash
-   Unity -batchmode -nographics -quit -projectPath /path/to/Unity6-Mobile-3D -executeMethod BuildAndroid.PerformBuild -logFile /path/to/unity-build.log
-5. Output: build/Android/BodycamFPS-Mobile-ARM64.apk
+## Recovery and backups
 
-## Notes
-This is a first playable combat prototype, not a finished commercial Bodycam clone. The scene is designed for mobile performance; visual assets, full humanoid animation/IK, footstep/audio variety, enemy combat AI, and optimization will be iterated after device testing.
+- The current source code and Unity project configuration are checkpointed in the `bodycam-rebuild-2026-11-16` branch.
+- The full project archive, including imported art assets, is stored separately in Google Drive at `My Drive/Unity6Builds/BodycamProjectSource_2026-11-16.zip`.
+- Keep Unity's generated folders (`Library/`, `Temp/`, `Obj/`, `Logs/`, and build output) out of Git.
+- After each meaningful change, commit source/configuration to this branch and create a fresh dated archive in Drive. Never rely on the remote computer's temporary disk as the only copy.
+
+## Project version and Android target
+
+- Unity editor version recorded in the project: `6000.0.40f1`.
+- Android target: ARM64, IL2CPP.
+- Test target: Android phone with touch controls; final verification must be performed on the actual device.
+
+## Build
+
+The editor build entry point is `BuildAndroid.PerformBuild` in `Assets/Editor/BuildAndroid.cs`. Before creating a release APK:
+1. Open/import the project and resolve all compiler/import errors.
+2. Run `BuildAndroid.ValidateOnly`.
+3. Run the full editor smoke tests.
+4. Build the Android ARM64 APK.
+5. Install and test it on a real Android device, checking movement, multitouch, firing, reload, weapon switching, aim, enemy hit detection, ragdoll and respawn.
