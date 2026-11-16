@@ -11,21 +11,31 @@ public class FPSWeapon : MonoBehaviour
     public WeaponData pistol=new WeaponData{weaponName="Pistol",damage=34,fireRate=3.2f,magazineSize=15,range=80,automatic=false};
     public WeaponData akm=new WeaponData{weaponName="AKM",damage=25,fireRate=9f,magazineSize=30,range=130,automatic=true};
     public Camera aimCamera; public FPSPlayerController player; public FPSBodycamEffects cameraEffects;
-    public Text ammoText; public Text weaponText; public GameObject pistolModel,akmModel,muzzleFlash,pistolMuzzleFlash,akmMuzzleFlash; public AudioSource audioSource; public AudioClip shotClip;
+    public Text ammoText; public Text weaponText; public GameObject pistolModel,akmModel,muzzleFlash,pistolMuzzleFlash,akmMuzzleFlash; public AudioSource audioSource; public AudioClip shotClip; public Animator armsAnimator;
     private WeaponData current; private float nextShot,flashUntil; private bool firing,aiming; private int reservePistol=60,reserveAkm=120;
     private void Start(){pistol.ammo=pistol.magazineSize;akm.ammo=akm.magazineSize;if(shotClip==null)shotClip=CreateGunshot();Equip(0);UpdateHud();}
     private void Update()
     {
+#if UNITY_EDITOR || UNITY_STANDALONE
         if(Input.GetMouseButtonDown(0))FireOnce();
         if(Input.GetMouseButton(0)&&current!=null&&current.automatic)FireOnce();
+        if(armsAnimator!=null&&current==akm)armsAnimator.SetBool("shooting",Input.GetMouseButton(0));
+#endif
         if(firing&&current!=null&&current.automatic)FireOnce();
+        if(armsAnimator!=null&&player!=null)armsAnimator.SetFloat("speed",player.MovementAmount*2f);
         if(Time.time>flashUntil){if(muzzleFlash!=null&&muzzleFlash.activeSelf)muzzleFlash.SetActive(false);if(pistolMuzzleFlash!=null&&pistolMuzzleFlash.activeSelf)pistolMuzzleFlash.SetActive(false);if(akmMuzzleFlash!=null&&akmMuzzleFlash.activeSelf)akmMuzzleFlash.SetActive(false);}
     }
-    public void SetFire(bool value){bool pressed=value&&!firing;firing=value;if(pressed&&current!=null&&!current.automatic)FireOnce();}
+    public void SetFire(bool value)
+    {
+        bool pressed=value&&!firing;firing=value;
+        if(armsAnimator!=null)armsAnimator.SetBool("shooting",value&&current==akm&&current.automatic);
+        if(pressed&&current!=null&&!current.automatic)FireOnce();
+    }
     public void FireOnce()
     {
         if(current==null||Time.time<nextShot||current.ammo<=0)return;
         nextShot=Time.time+1f/Mathf.Max(.1f,current.fireRate);current.ammo--;
+        if(armsAnimator!=null&&!current.automatic)armsAnimator.SetTrigger("oneshoot");
         if(audioSource!=null&&shotClip!=null)audioSource.PlayOneShot(shotClip);
         GameObject flash=current==pistol?pistolMuzzleFlash:akmMuzzleFlash;if(flash==null)flash=muzzleFlash;if(flash!=null){flash.SetActive(true);flashUntil=Time.time+.055f;}
         if(cameraEffects!=null)cameraEffects.AddRecoil(current==akm ? .85f : 1.35f);
@@ -43,14 +53,18 @@ public class FPSWeapon : MonoBehaviour
     }
     public void Reload()
     {
-        if(current==null)return;int reserve=current==pistol?reservePistol:reserveAkm;int amount=Mathf.Min(current.magazineSize-current.ammo,reserve);
+        if(current==null)return;
+        if(armsAnimator!=null)armsAnimator.SetTrigger("reload");
+        int reserve=current==pistol?reservePistol:reserveAkm;int amount=Mathf.Min(current.magazineSize-current.ammo,reserve);
         current.ammo+=amount;if(current==pistol)reservePistol-=amount;else reserveAkm-=amount;UpdateHud();
     }
     public void SwitchWeapon(){Equip(current==pistol?1:0);}
     public void Equip(int index)
     {
         current=index==0?pistol:akm;if(pistolModel!=null)pistolModel.SetActive(index==0);if(akmModel!=null)akmModel.SetActive(index==1);
-        firing=false;aiming=false;if(player!=null)player.SetAim(false);UpdateHud();
+        firing=false;aiming=false;
+        if(armsAnimator!=null){armsAnimator.SetBool("shooting",false);armsAnimator.SetBool("draw",true);}
+        if(player!=null)player.SetAim(false);UpdateHud();
     }
     public void SetAim(bool value){aiming=value;if(player!=null)player.SetAim(value);}
     private AudioClip CreateGunshot()
